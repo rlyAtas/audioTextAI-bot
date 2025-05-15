@@ -1,0 +1,31 @@
+log/
+temp/
+texts/
+tests/
+models/
+
+# Node.js
+node_modules/
+dist/
+
+# dotenv files
+.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Docker
+*.local
+docker-compose.override.yml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# TypeScript
+*.tsbuildinfo

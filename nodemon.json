@@ -1,0 +1,8 @@
+{
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "ext": ".ts,.js",
+  "watch": ["src", ".env"],
+  "exec": "npx tsx ./src/index.ts"
+}
