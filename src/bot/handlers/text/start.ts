@@ -1,11 +1,16 @@
 import TelegramBot, { Message } from 'node-telegram-bot-api';
 import { getLogger } from '../../../classes/Logger.js';
 import { PrismaClient, User } from '@prisma/client';
+import { Chat } from '../../../classes/Chat.js';
+import { Language } from '../../../types/common.js';
 
 const logger = getLogger();
 const prisma = new PrismaClient();
 
 export async function start(bot: TelegramBot, msg: Message) {
+  const language: Language = languageCodeToLanguage(msg.from?.language_code);
+  const chat = new Chat(bot, msg.chat.id, language);
+
   try {
     logger.debug(`[start] User ${msg.from?.id} started bot`);
     if (!msg.from) throw new Error('msg.from is undefined');
@@ -28,7 +33,8 @@ export async function start(bot: TelegramBot, msg: Message) {
       await prisma.user.update({ where: { telegramId }, data: newData });
     }
 
-    await bot.sendMessage(msg.chat.id, 'Hello');
+    await chat.hi();
+    await chat.languagesList(true);
   } catch (err: unknown) {
     logger.error(`[start] msg = ${JSON.stringify(msg)}, err = ${err}`);
     await bot.sendMessage(
@@ -42,4 +48,26 @@ const isUserChanged = (existingUser: User, newData: Partial<User>): boolean => {
   return (Object.keys(newData) as (keyof typeof newData)[]).some(
     (key) => newData[key] !== existingUser[key],
   );
+};
+
+const languageCodeToLanguage = (languageCode: string | undefined): Language => {
+  switch (languageCode?.toLowerCase()) {
+    case 'ru':
+      return 'russian';
+    case 'en':
+      return 'english';
+    case 'de':
+      return 'deutsch';
+    case 'uk':
+    case 'ua':
+      return 'ukrainian';
+    case 'es':
+      return 'spanish';
+    case 'fr':
+      return 'french';
+    case 'ar':
+      return 'arabic';
+    default:
+      return 'english';
+  }
 };
