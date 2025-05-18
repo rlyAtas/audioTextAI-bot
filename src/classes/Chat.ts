@@ -2,11 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import { CWD } from '../utils/projectRoot.js';
 import dotenv from 'dotenv';
-import TelegramBot, {
-  SendMessageOptions,
-  EditMessageTextOptions,
-  Message,
-} from 'node-telegram-bot-api';
+import TelegramBot, { SendMessageOptions, Message } from 'node-telegram-bot-api';
 import { getLogger } from './Logger.js';
 import { Language } from '../types/common.js';
 dotenv.config();
@@ -121,7 +117,7 @@ export class Chat {
       return await this.bot.sendMessage(this.chatId, this.t('technicalIssue'), options);
     } catch (error: unknown) {
       logger.error(
-        `[classes/Chat/technicalIssue] chatId = ${this.chatId}language = ${this.language}, error = ${error}`,
+        `[classes/Chat/technicalIssue] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
       );
       return null;
     }
@@ -143,6 +139,27 @@ export class Chat {
     } catch (error: unknown) {
       logger.error(
         `[classes/Chat/startLanguageSet] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
+      );
+      return null;
+    }
+  }
+
+  /**
+   * The method informs the user that the transcription process has started.
+   * @returns - message
+   */
+  async transcribeStart(): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/transcribeStart] chatId = ${this.chatId}, language = ${this.language}`,
+      );
+      const options: SendMessageOptions = {
+        parse_mode: 'HTML',
+      };
+      return this.bot.sendMessage(this.chatId, this.t('transcribeStart'), options);
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/transcribeStart] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
       );
       return null;
     }
