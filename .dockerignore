@@ -5,3 +5,4 @@ dist
 Dockerfile
 .prettierrc
 eslint.config.js
+utils

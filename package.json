@@ -7,7 +7,8 @@
   "scripts": {
     "start": "NODE_ENV=production node dist/index.js",
     "dev": "WHISPER_CPP_LOG_LEVEL=0 npx nodemon",
-    "build": "npx tsc"
+    "build": "npx tsc",
+    "add-translation": "node --no-warnings --loader ts-node/esm utils/addTranslation.ts"
   },
   "author": "",
   "license": "ISC",
