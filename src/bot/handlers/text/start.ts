@@ -8,26 +8,25 @@ const logger = getLogger();
 const prisma = new PrismaClient();
 
 export async function start(bot: TelegramBot, message: Message) {
-  const language: Language = languageCodeToLanguage(message.from!.language_code);
+  let language: Language = languageCodeToLanguage(message.from!.language_code);
   const chat = new Chat(bot, message.chat.id, language);
 
   try {
     logger.debug(`[start] message = ${message}`);
 
-    const newData: Pick<User, 'firstName' | 'lastName' | 'username' | 'languageCode' | 'language'> =
-      {
-        firstName: message.from!.first_name,
-        lastName: message.from!.last_name ?? null,
-        username: message.from!.username ?? null,
-        languageCode: message.from!.language_code ?? null,
-        language,
-      };
+    const newData: Pick<User, 'firstName' | 'lastName' | 'username' | 'languageCode'> = {
+      firstName: message.from!.first_name,
+      lastName: message.from!.last_name ?? null,
+      username: message.from!.username ?? null,
+      languageCode: message.from!.language_code ?? null,
+    };
 
     const telegramId = BigInt(message.from!.id);
     const existingUser = await prisma.user.findUnique({ where: { telegramId } });
 
     if (!existingUser) {
       await prisma.user.create({ data: { telegramId, ...newData } });
+      await prisma.user.update({ where: { telegramId }, data: { language } });
     }
 
     if (existingUser && isUserChanged(existingUser, newData)) {
