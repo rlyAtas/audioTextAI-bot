@@ -1,10 +1,14 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { download } from './callback/download.js';
+import { startLanguageSet } from './callback/startLanguageSet.js';
 import { getLogger } from '../../classes/Logger.js';
 
 const logger = getLogger();
 
-const routes = [{ test: (data: string) => data.split('_')[0] === 'download', handler: download }];
+const routes = [
+  { test: (data: string) => data.split('_')[0] === 'download', handler: download },
+  { test: (data: string) => data.split('_')[0] === 'startLanguageSet', handler: startLanguageSet },
+];
 
 export function handlerCallback(bot: TelegramBot, query: TelegramBot.CallbackQuery) {
   try {

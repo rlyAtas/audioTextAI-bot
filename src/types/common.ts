@@ -1,1 +1,8 @@
-export type Language = 'russian' | 'english' | 'deutsch' | 'ukrainian' | 'spanish' | 'french' | 'arabic';
+export type Language =
+  | 'russian'
+  | 'english'
+  | 'deutsch'
+  | 'ukrainian'
+  | 'spanish'
+  | 'french'
+  | 'arabic';

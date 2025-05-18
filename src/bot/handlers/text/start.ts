@@ -7,23 +7,23 @@ import { Language } from '../../../types/common.js';
 const logger = getLogger();
 const prisma = new PrismaClient();
 
-export async function start(bot: TelegramBot, msg: Message) {
-  const language: Language = languageCodeToLanguage(msg.from?.language_code);
-  const chat = new Chat(bot, msg.chat.id, language);
+export async function start(bot: TelegramBot, message: Message) {
+  const language: Language = languageCodeToLanguage(message.from!.language_code);
+  const chat = new Chat(bot, message.chat.id, language);
 
   try {
-    logger.debug(`[start] User ${msg.from?.id} started bot`);
-    if (!msg.from) throw new Error('msg.from is undefined');
+    logger.debug(`[start] message = ${message}`);
 
-    const telegramId = BigInt(msg.from.id);
-    const newData: Pick<User, 'firstName' | 'lastName' | 'username' | 'languageCode' | 'language'> = {
-      firstName: msg.from.first_name,
-      lastName: msg.from.last_name ?? null,
-      username: msg.from.username ?? null,
-      languageCode: msg.from.language_code ?? null,
-      language,
-    };
+    const newData: Pick<User, 'firstName' | 'lastName' | 'username' | 'languageCode' | 'language'> =
+      {
+        firstName: message.from!.first_name,
+        lastName: message.from!.last_name ?? null,
+        username: message.from!.username ?? null,
+        languageCode: message.from!.language_code ?? null,
+        language,
+      };
 
+    const telegramId = BigInt(message.from!.id);
     const existingUser = await prisma.user.findUnique({ where: { telegramId } });
 
     if (!existingUser) {
@@ -36,9 +36,9 @@ export async function start(bot: TelegramBot, msg: Message) {
 
     await chat.hi();
     await chat.languagesList(true);
-  } catch (err: unknown) {
-    logger.error(`[start] msg = ${JSON.stringify(msg)}, err = ${err}`);
-    await chat.technicalIssue(language);
+  } catch (error: unknown) {
+    logger.error(`[start] msg = ${JSON.stringify(message)}, error = ${error}`);
+    await chat.technicalIssue();
   }
 }
 
@@ -48,7 +48,7 @@ const isUserChanged = (existingUser: User, newData: Partial<User>): boolean => {
   );
 };
 
-export const languageCodeToLanguage = (languageCode: string | undefined): Language => {
+const languageCodeToLanguage = (languageCode: string | undefined): Language => {
   const languageMap: { codes: string[]; language: Language }[] = [
     { codes: ['ru'], language: 'russian' },
     { codes: ['en'], language: 'english' },

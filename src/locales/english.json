@@ -1,5 +1,6 @@
 {
   "hi": "👋",
   "languagesList": "🌍\nChoose your interface language.\n<i>This is not the audio language — it will be detected automatically.</i>",
-  "technicalIssue": "⚠️\nWe have temporary technical difficulties.\nWe are already working on fixing it."
+  "technicalIssue": "⚠️\nWe have temporary technical difficulties.\nWe are already working on fixing it.",
+  "startLanguageSet": "Welcome!\n\nI’m a bot that converts audio and voice messages into text.\n\nJust send a <b>voice message</b> or an <b>audio file</b> — I’ll transcribe it and send you the text."
 }

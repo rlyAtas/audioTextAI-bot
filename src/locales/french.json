@@ -1,5 +1,6 @@
 {
   "hi": "👋",
   "languagesList": "🌍\nChoisissez la langue de l’interface.\n<i>Il ne s’agit pas de la langue audio – elle est détectée automatiquement.</i>",
-  "technicalIssue": "⚠️\nNous avons des difficultés techniques temporaires.\nNous travaillons déjà à les résoudre."
+  "technicalIssue": "⚠️\nNous avons des difficultés techniques temporaires.\nNous travaillons déjà à les résoudre.",
+  "startLanguageSet": "Bienvenue !\n\nJe suis un bot qui convertit les messages vocaux et les fichiers audio en texte.\n\nEnvoie simplement un <b>message vocal</b> ou un <b>fichier audio</b> — je vais le transcrire et t’envoyer le texte."
 }
