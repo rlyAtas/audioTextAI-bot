@@ -39,7 +39,7 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
       'audio/aac',
     ];
     if (!audio || !audio.mime_type || !supportedTypes.includes(audio.mime_type)) {
-      bot.sendMessage(chatId, 'Этот формат пока не поддерживается.');
+      await chat.unsupportedFormat();
       return;
     }
 

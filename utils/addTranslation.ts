@@ -27,40 +27,12 @@ export function addTranslation(
   return translations;
 }
 
-const key = 'transcribeStart';
+const key = 'unsupportedFormat';
 
-addTranslation(
-  'russian',
-  key,
-  'Пожалуйста, подождите, пока мы обрабатываем ваш аудиофайл. Это займет пару минут!',
-);
-addTranslation(
-  'english',
-  key,
-  'Please wait while we process your audio file. This will take a couple of minutes!',
-);
-addTranslation(
-  'deutsch',
-  key,
-  'Bitte warten Sie, während wir Ihre Audiodatei verarbeiten. Das dauert ein paar Minuten!',
-);
-addTranslation(
-  'ukrainian',
-  key,
-  'Будь ласка, зачекайте, поки ми обробляємо ваш аудіофайл. Це займе кілька хвилин!',
-);
-addTranslation(
-  'spanish',
-  key,
-  'Por favor, espera mientras procesamos tu archivo de audio. ¡Esto tomará un par de minutos!',
-);
-addTranslation(
-  'french',
-  key,
-  'Veuillez patienter pendant que nous traitons votre fichier audio. Cela prendra quelques minutes !',
-);
-addTranslation(
-  'arabic',
-  key,
-  '\u200Fيرجى الانتظار بينما نقوم بمعالجة ملفك الصوتي. سيستغرق ذلك بضع دقائق!',
-);
+addTranslation('russian', key, 'Этот формат аудио пока не поддерживается.');
+addTranslation('english', key, 'This audio format is not supported yet.');
+addTranslation('deutsch', key, 'Dieses Audioformat wird derzeit nicht unterstützt.');
+addTranslation('ukrainian', key, 'Цей формат аудіо наразі не підтримується.');
+addTranslation('spanish', key, 'Este formato de audio aún no es compatible.');
+addTranslation('french', key, 'Ce format audio n’est pas encore pris en charge.');
+addTranslation('arabic', key, 'هذا التنسيق الصوتي غير مدعوم حالياً.');

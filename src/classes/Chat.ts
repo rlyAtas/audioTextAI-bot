@@ -164,4 +164,25 @@ export class Chat {
       return null;
     }
   }
+
+  /**
+   * Message that the audio format is not yet supported
+   * @returns - message
+   */
+  async unsupportedFormat(): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/unsupportedFormat] chatId = ${this.chatId}, language = ${this.language}`,
+      );
+      const options: SendMessageOptions = {
+        parse_mode: 'HTML',
+      };
+      return this.bot.sendMessage(this.chatId, this.t('unsupportedFormat'), options);
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/unsupportedFormat] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
+      );
+      return null;
+    }
+  }
 }
