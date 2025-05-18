@@ -21,8 +21,12 @@ export class Chat {
     private bot: TelegramBot,
     private chatId: number,
     private language: Language,
-  ) {
-    this.initTranslations();
+  ) {}
+
+  static async create(bot: TelegramBot, chatId: number, language: Language): Promise<Chat> {
+    const instance = new Chat(bot, chatId, language);
+    await instance.initTranslations();
+    return instance;
   }
 
   private createCallbackData(command: string, lang: Language): string {
@@ -37,6 +41,7 @@ export class Chat {
       const filePath = path.join(CWD, 'src/locales', `${this.language}.json`);
       const fileContent = await fs.readFile(filePath, 'utf-8');
       this.translations = JSON.parse(fileContent) as Translations;
+      console.log('this.translations = ', this.translations);
     } catch (error) {
       logger.error(
         `[classes/Chat/loadTranslations] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
@@ -46,6 +51,9 @@ export class Chat {
   }
 
   private t(key: string): string {
+    console.log('key = ', key);
+    console.log('this.translations = ', this.translations);
+    console.log('this.translations[key] = ', this.translations[key]);
     return this.translations[key] || key;
   }
 

@@ -14,7 +14,7 @@ const prisma = new PrismaClient();
  */
 export async function startLanguageSet(bot: TelegramBot, query: CallbackQuery) {
   const language = query.data?.split('_')[1] as Language;
-  const chat = new Chat(bot, query.message!.chat.id, language);
+  const chat = await Chat.create(bot, query.message!.chat.id, language);
 
   try {
     logger.debug(`[bot/handlers/callback/startLanguageSet] query = ${JSON.stringify(query)}`);

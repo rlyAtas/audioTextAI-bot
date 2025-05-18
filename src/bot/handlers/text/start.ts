@@ -3,16 +3,17 @@ import { getLogger } from '../../../classes/Logger.js';
 import { PrismaClient, User } from '@prisma/client';
 import { Chat } from '../../../classes/Chat.js';
 import { Language } from '../../../types/common.js';
+import { isUserChanged } from '../../../utils/isUserChanged.js';
 
 const logger = getLogger();
 const prisma = new PrismaClient();
 
 export async function start(bot: TelegramBot, message: Message) {
   let language: Language = languageCodeToLanguage(message.from!.language_code);
-  const chat = new Chat(bot, message.chat.id, language);
+  const chat = await Chat.create(bot, message.chat.id, language);
 
   try {
-    logger.debug(`[start] message = ${message}`);
+    logger.debug(`[bot/handlers/text/start] message = ${JSON.stringify(message)}`);
 
     const newData: Pick<User, 'firstName' | 'lastName' | 'username' | 'languageCode'> = {
       firstName: message.from!.first_name,
@@ -20,6 +21,8 @@ export async function start(bot: TelegramBot, message: Message) {
       username: message.from!.username ?? null,
       languageCode: message.from!.language_code ?? null,
     };
+
+    await chat.hi();
 
     const telegramId = BigInt(message.from!.id);
     const existingUser = await prisma.user.findUnique({ where: { telegramId } });
@@ -31,21 +34,15 @@ export async function start(bot: TelegramBot, message: Message) {
 
     if (existingUser && isUserChanged(existingUser, newData)) {
       await prisma.user.update({ where: { telegramId }, data: newData });
+      await chat.languagesList(true);
     }
-
-    await chat.hi();
-    await chat.languagesList(true);
   } catch (error: unknown) {
-    logger.error(`[start] msg = ${JSON.stringify(message)}, error = ${error}`);
+    logger.error(
+      `[bot/handlers/text/start] msg = ${JSON.stringify(JSON.stringify(message))}, error = ${error}`,
+    );
     await chat.technicalIssue();
   }
 }
-
-const isUserChanged = (existingUser: User, newData: Partial<User>): boolean => {
-  return (Object.keys(newData) as (keyof typeof newData)[]).some(
-    (key) => newData[key] !== existingUser[key],
-  );
-};
 
 const languageCodeToLanguage = (languageCode: string | undefined): Language => {
   const languageMap: { codes: string[]; language: Language }[] = [

@@ -1,9 +1,9 @@
 import { PrismaClient, User } from '@prisma/client';
 import { User as TelegramUser } from 'node-telegram-bot-api';
 import { getLogger } from '../classes/Logger.js';
+import { isUserChanged } from '../utils/isUserChanged.js';
 
 const logger = getLogger();
-
 const prisma = new PrismaClient();
 
 export async function syncUser(tgUser: TelegramUser | undefined): Promise<void> {
@@ -30,9 +30,3 @@ export async function syncUser(tgUser: TelegramUser | undefined): Promise<void> 
     return;
   }
 }
-
-const isUserChanged = (existingUser: User, newData: Partial<User>): boolean => {
-  return (Object.keys(newData) as (keyof typeof newData)[]).some(
-    (key) => newData[key] !== existingUser[key],
-  );
-};
