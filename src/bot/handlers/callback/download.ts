@@ -11,7 +11,6 @@ export async function download(bot: TelegramBot, query: TelegramBot.CallbackQuer
     const chatId = query.message!.chat.id;
     const fileName = query.data?.split('_')[1];
     const filePath = path.join(CWD, `/texts/${chatId}/${fileName}.txt`);
-    console.log('filePath = ', filePath);
     await bot.sendDocument(chatId, filePath, {
       caption: '📥 Файл с результатом транскрибации',
     });

@@ -3,7 +3,6 @@ import { getLogger } from '../../../classes/Logger.js';
 import { PrismaClient, User } from '@prisma/client';
 import { Chat } from '../../../classes/Chat.js';
 import { Language } from '../../../types/common.js';
-import { isUserChanged } from '../../../utils/isUserChanged.js';
 
 const logger = getLogger();
 const prisma = new PrismaClient();
@@ -22,20 +21,16 @@ export async function start(bot: TelegramBot, message: Message) {
       languageCode: message.from!.language_code ?? null,
     };
 
-    await chat.hi();
-
     const telegramId = BigInt(message.from!.id);
     const existingUser = await prisma.user.findUnique({ where: { telegramId } });
 
     if (!existingUser) {
       await prisma.user.create({ data: { telegramId, ...newData } });
       await prisma.user.update({ where: { telegramId }, data: { language } });
-    }
-
-    if (existingUser && isUserChanged(existingUser, newData)) {
-      await prisma.user.update({ where: { telegramId }, data: newData });
       await chat.languagesList(true);
     }
+
+    await chat.hi();
   } catch (error: unknown) {
     logger.error(
       `[bot/handlers/text/start] msg = ${JSON.stringify(JSON.stringify(message))}, error = ${error}`,
