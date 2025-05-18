@@ -7,13 +7,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Language { 
+  russian
+  english
+  deutsch
+  ukrainian
+  spanish
+  french
+  arabic
+}
+
 model User {
   id            Int      @id @default(autoincrement())
   telegramId    BigInt   @unique
   username      String? 
-  firstName     String?
+  firstName     String
   lastName      String?
   languageCode  String? 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+  language      Language @default(english)
 }

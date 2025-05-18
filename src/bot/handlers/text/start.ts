@@ -16,11 +16,12 @@ export async function start(bot: TelegramBot, msg: Message) {
     if (!msg.from) throw new Error('msg.from is undefined');
 
     const telegramId = BigInt(msg.from.id);
-    const newData: Pick<User, 'firstName' | 'lastName' | 'username' | 'languageCode'> = {
+    const newData: Pick<User, 'firstName' | 'lastName' | 'username' | 'languageCode' | 'language'> = {
       firstName: msg.from.first_name,
       lastName: msg.from.last_name ?? null,
       username: msg.from.username ?? null,
       languageCode: msg.from.language_code ?? null,
+      language,
     };
 
     const existingUser = await prisma.user.findUnique({ where: { telegramId } });
@@ -37,10 +38,7 @@ export async function start(bot: TelegramBot, msg: Message) {
     await chat.languagesList(true);
   } catch (err: unknown) {
     logger.error(`[start] msg = ${JSON.stringify(msg)}, err = ${err}`);
-    await bot.sendMessage(
-      msg.chat.id,
-      '⚠️ Произошла техническая ошибка. Мы уже работаем над её устранением.',
-    );
+    await chat.technicalIssue(language);
   }
 }
 
@@ -50,24 +48,18 @@ const isUserChanged = (existingUser: User, newData: Partial<User>): boolean => {
   );
 };
 
-const languageCodeToLanguage = (languageCode: string | undefined): Language => {
-  switch (languageCode?.toLowerCase()) {
-    case 'ru':
-      return 'russian';
-    case 'en':
-      return 'english';
-    case 'de':
-      return 'deutsch';
-    case 'uk':
-    case 'ua':
-      return 'ukrainian';
-    case 'es':
-      return 'spanish';
-    case 'fr':
-      return 'french';
-    case 'ar':
-      return 'arabic';
-    default:
-      return 'english';
-  }
+export const languageCodeToLanguage = (languageCode: string | undefined): Language => {
+  const languageMap: { codes: string[]; language: Language }[] = [
+    { codes: ['ru'], language: 'russian' },
+    { codes: ['en'], language: 'english' },
+    { codes: ['de'], language: 'deutsch' },
+    { codes: ['uk'], language: 'ukrainian' },
+    { codes: ['es'], language: 'spanish' },
+    { codes: ['fr'], language: 'french' },
+    { codes: ['ar'], language: 'arabic' },
+  ];
+
+  const code = languageCode?.toLowerCase();
+  const match = languageMap.find(({ codes }) => code && codes.includes(code));
+  return match ? match.language : 'english';
 };
