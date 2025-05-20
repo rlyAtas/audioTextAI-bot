@@ -9,10 +9,12 @@ import TelegramBot, {
 } from 'node-telegram-bot-api';
 import { getLogger } from './Logger.js';
 import { Language } from '../types/common.js';
+
 dotenv.config();
 const logger = getLogger();
 
 type Translations = Record<string, string>;
+const translationCache = new Map<Language, Translations>();
 
 export class Chat {
   private translations: Translations = {};
@@ -38,14 +40,19 @@ export class Chat {
       logger.debug(
         `[classes/Chat/initTranslations] chatId = ${this.chatId}, language = ${this.language}`,
       );
-      const filePath = path.join(CWD, 'src/locales', `${this.language}.json`);
-      const fileContent = await fs.readFile(filePath, 'utf-8');
-      this.translations = JSON.parse(fileContent) as Translations;
+
+      if (!translationCache.has(this.language)) {
+        const filePath = path.join(CWD, 'src/locales', `${this.language}.json`);
+        const fileContent = await fs.readFile(filePath, 'utf-8');
+        const translations = JSON.parse(fileContent) as Translations;
+        translationCache.set(this.language, translations);
+      }
+
+      this.translations = translationCache.get(this.language)!;
     } catch (error) {
       logger.error(
         `[classes/Chat/loadTranslations] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
       );
-      return {};
     }
   }
 

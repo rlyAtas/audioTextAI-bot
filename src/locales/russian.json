@@ -7,5 +7,5 @@
   "unsupportedFormat": "Этот формат аудио пока не поддерживается.",
   "transcribeResult": "Язык: {languageCode}\nРезультат:\n\n<pre>{previewText}</pre>",
   "buttonTranscribeResult": "Скачать файл с результатом",
-  "transcribeDownload": "Файл с результатом транскрибации"
+  "transcribeDownload": "Файл с результатом транскрипции"
 }
