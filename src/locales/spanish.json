@@ -4,5 +4,7 @@
   "technicalIssue": "⚠️\nTenemos dificultades técnicas temporales.\nYa estamos trabajando en solucionarlos.",
   "startLanguageSet": "¡Bienvenido!\n\nSoy un bot que convierte mensajes de voz y archivos de audio en texto.\n\nSimplemente envía un <b>mensaje de voz</b> o un <b>archivo de audio</b> — lo transcribiré y te enviaré el texto.",
   "transcribeStart": "Por favor, espera mientras procesamos tu archivo de audio. ¡Esto tomará un par de minutos!",
-  "unsupportedFormat": "Este formato de audio aún no es compatible."
+  "unsupportedFormat": "Este formato de audio aún no es compatible.",
+  "transcribeResult": "Idioma: {languageCode}\nResultado:\n\n<pre>{previewText}</pre>",
+  "buttonTranscribeResult": "Descargar archivo con el resultado"
 }

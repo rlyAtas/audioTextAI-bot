@@ -27,12 +27,12 @@ export function addTranslation(
   return translations;
 }
 
-const key = 'unsupportedFormat';
+const key = 'buttonTranscriptionResult';
 
-addTranslation('russian', key, 'Этот формат аудио пока не поддерживается.');
-addTranslation('english', key, 'This audio format is not supported yet.');
-addTranslation('deutsch', key, 'Dieses Audioformat wird derzeit nicht unterstützt.');
-addTranslation('ukrainian', key, 'Цей формат аудіо наразі не підтримується.');
-addTranslation('spanish', key, 'Este formato de audio aún no es compatible.');
-addTranslation('french', key, 'Ce format audio n’est pas encore pris en charge.');
-addTranslation('arabic', key, 'هذا التنسيق الصوتي غير مدعوم حالياً.');
+addTranslation('russian', key, 'Скачать файл с результатом');
+addTranslation('english', key, 'Download result file');
+addTranslation('deutsch', key, 'Ergebnisdatei herunterladen');
+addTranslation('ukrainian', key, 'Завантажити файл з результатом');
+addTranslation('spanish', key, 'Descargar archivo con el resultado');
+addTranslation('french', key, 'Télécharger le fichier de résultat');
+addTranslation('arabic', key, '\u200Fتحميل ملف النتيجة');

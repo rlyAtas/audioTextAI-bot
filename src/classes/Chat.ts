@@ -25,8 +25,8 @@ export class Chat {
     return instance;
   }
 
-  private createCallbackData(command: string, lang: Language): string {
-    return `${command}_${lang}`;
+  private createCallbackData(command: string, parameter: string): string {
+    return `${command}_${parameter}`;
   }
 
   private async initTranslations() {
@@ -45,8 +45,14 @@ export class Chat {
     }
   }
 
-  private t(key: string): string {
-    return this.translations[key] || key;
+  private t(key: string, values?: Record<string, string>): string {
+    let message = this.translations[key] || key;
+    if (values) {
+      Object.entries(values).forEach(([key, value]) => {
+        message = message.replace(new RegExp(`{${key}}`, 'g'), value);
+      });
+    }
+    return message;
   }
 
   /**
@@ -74,7 +80,8 @@ export class Chat {
   async languagesList(start: boolean): Promise<Message | null> {
     try {
       logger.debug(
-        `[classes/Chat/languagesList] chatId = ${this.chatId}, language = ${this.language}, start = ${start}`,
+        `[classes/Chat/languagesList] chatId = ${this.chatId}, language = ${this.language}` +
+          `, start = ${start}`,
       );
       const command = start ? 'startLanguageSet' : 'languageSet';
       const inlineButtons = [
@@ -95,7 +102,8 @@ export class Chat {
       return await this.bot.sendMessage(this.chatId, this.t('languagesList'), options);
     } catch (error: unknown) {
       logger.error(
-        `[classes/Chat/languagesList] chatId = ${this.chatId}, language = ${this.language}, start = ${start}` +
+        `[classes/Chat/languagesList] chatId = ${this.chatId}, language = ${this.language}` +
+          `, start = ${start}` +
           `, error = ${error}`,
       );
       return null;
@@ -181,6 +189,47 @@ export class Chat {
     } catch (error: unknown) {
       logger.error(
         `[classes/Chat/unsupportedFormat] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
+      );
+      return null;
+    }
+  }
+
+  /**
+   * The message sends the user the result of the transcription
+   * @param file - path to the file
+   * @param previewText - text preview
+   * @param languageCode - language code
+   * @returns - message
+   */
+  async transcribeResult(
+    file: string,
+    previewText: string,
+    languageCode: string,
+  ): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/transcriptionResult] chatId = ${this.chatId}, language = ${this.language}` +
+          `, file = ${file}, previewText = ${previewText}, languageCode = ${languageCode}`,
+      );
+      const callbackData = this.createCallbackData('download', languageCode);
+      const options: SendMessageOptions = {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: [
+            [{ text: this.t('buttonTranscribeResult'), callback_data: callbackData }],
+          ],
+        },
+      };
+      return await this.bot.sendMessage(
+        this.chatId,
+        this.t('transcribeResult', { languageCode, previewText }),
+        options,
+      );
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/transcriptionResult] chatId = ${this.chatId}, language = ${this.language}` +
+          `, file = ${file}, previewText = ${previewText}, languageCode = ${languageCode}` +
+          `, error = ${error}`,
       );
       return null;
     }

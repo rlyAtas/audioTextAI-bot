@@ -1,10 +1,9 @@
 import TelegramBot, { Message } from 'node-telegram-bot-api';
 import { transcribeAudio } from '../../services/transcribeAudio.js';
-import { sendTranscriptionResult } from '../../utils/sendTranscriptionResult.js';
 import { getLogger } from '../../classes/Logger.js';
 import { Chat } from '../../classes/Chat.js';
 import { Language } from '../../types/common.js';
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const logger = getLogger();
 const prisma = new PrismaClient();
@@ -46,8 +45,8 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
     await chat.transcribeStart();
 
     const fileLink = await bot.getFileLink(audio.file_id);
-    const resultFilePath = await transcribeAudio(fileLink, chatId);
-    await sendTranscriptionResult(bot, chatId, resultFilePath);
+    const { file, previewText, languageCode } = await transcribeAudio(fileLink, chatId);
+    await chat.transcribeResult(file, previewText, languageCode);
   } catch (error: unknown) {
     logger.error(`[handlerAudio] msg = ${JSON.stringify(message)}, error = ${error}`);
     const chat = await Chat.create(bot, chatId, language);

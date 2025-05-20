@@ -2,7 +2,7 @@ import TelegramBot, { CallbackQuery } from 'node-telegram-bot-api';
 import { getLogger } from '../../../classes/Logger.js';
 import { Chat } from '../../../classes/Chat.js';
 import { Language } from '../../../types/common.js';
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 
 const logger = getLogger();
 const prisma = new PrismaClient();

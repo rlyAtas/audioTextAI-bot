@@ -3,7 +3,10 @@ import fs from 'node:fs/promises';
 import { nodewhisper } from 'nodejs-whisper';
 import { CWD } from '../utils/projectRoot.js';
 
-export async function transcribeAudio(url: string, chatId: number): Promise<string> {
+export async function transcribeAudio(
+  url: string,
+  chatId: number,
+): Promise<Record<string, string>> {
   // создаем папку для хранения текстов
   await fs.mkdir(path.join(CWD, `/texts/${chatId}`), { recursive: true });
   // создаем имя файла, дата в формате yyyy-mm-dd-hh-mm-ss
@@ -21,7 +24,7 @@ export async function transcribeAudio(url: string, chatId: number): Promise<stri
   // скачиваем файл
   const response = await fetch(url);
   if (!response.ok) {
-    throw new Error(`Ошибка загрузки файла: ${response.statusText}`);
+    throw new Error(`Error downloading file: ${response.statusText}`);
   }
   const buffer = Buffer.from(await response.arrayBuffer());
   await fs.writeFile(filePath, buffer);
@@ -37,11 +40,25 @@ export async function transcribeAudio(url: string, chatId: number): Promise<stri
   });
 
   // переименуем файлы, чтобы убрать wav
-  await fs.rename(`${filePath}.wav.txt`, `${filePath}.txt`);
-  await fs.rename(`${filePath}.wav.json`, `${filePath}.json`);
+  const resultFile = `${filePath}.txt`;
+  await fs.rename(`${filePath}.wav.txt`, resultFile);
 
-  // удалим оригинальный аудиофайл
+  // получим код языка
+  const jsonString = await fs.readFile(`${filePath}.wav.json`, 'utf-8');
+  const data = JSON.parse(jsonString);
+  const languageCode = data.result?.language ?? null;
+
+  // получим превью текста
+  const text = await fs.readFile(resultFile, 'utf-8');
+  const previewText = text.length <= 2024 ? text : text.slice(0, 2024) + '...';
+
+  // удалим аудиофайл и json
+  await fs.unlink(`${filePath}.wav.json`);
   await fs.unlink(filePath);
 
-  return filePath;
+  return {
+    file: resultFile,
+    previewText,
+    languageCode: languageCode,
+  };
 }
