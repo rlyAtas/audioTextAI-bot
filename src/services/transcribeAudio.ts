@@ -7,32 +7,20 @@ export async function transcribeAudio(
   url: string,
   chatId: number,
 ): Promise<Record<string, string>> {
-  // создаем папку для хранения текстов
-  await fs.mkdir(path.join(CWD, `/texts/${chatId}`), { recursive: true });
-  // создаем имя файла, дата в формате yyyy-mm-dd-hh-mm-ss
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
-  const seconds = String(date.getSeconds()).padStart(2, '0');
-  const formattedDate = `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`;
-  // создаем имя аудио файла
-  const filePath = path.join(CWD, `/texts/${chatId}`, `${formattedDate}`);
-  // создаем имя файла для результата
-  const resultFile = `${formattedDate}.txt`;
+  const dir = path.join(CWD, 'texts', String(chatId));
+  await fs.mkdir(dir, { recursive: true });
 
-  // скачиваем файл
+  const timestamp = getFormattedTimestamp();
+  const basePath = path.join(dir, timestamp);
+  const resultFile = `${timestamp}.txt`;
+
+  // скачиваем и сохраняем файл
   const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Error downloading file: ${response.statusText}`);
-  }
-  const buffer = Buffer.from(await response.arrayBuffer());
-  await fs.writeFile(filePath, buffer);
+  if (!response.ok) throw new Error(`Failed to download file: ${response.statusText}`);
+  await fs.writeFile(basePath, Buffer.from(await response.arrayBuffer()));
 
-  // транскрибируем файл
-  await nodewhisper(filePath, {
+  // транскрибация
+  await nodewhisper(basePath, {
     modelName: 'large-v3-turbo',
     removeWavFileAfterTranscription: true,
     whisperOptions: {
@@ -41,25 +29,36 @@ export async function transcribeAudio(
     },
   });
 
-  // переименуем файлы, чтобы убрать wav
-  await fs.rename(`${filePath}.wav.txt`, `${filePath}.txt`);
+  // переименуем .txt и читаем результат
+  await fs.rename(`${basePath}.wav.txt`, `${basePath}.txt`);
+  const [jsonString, fullText] = await Promise.all([
+    fs.readFile(`${basePath}.wav.json`, 'utf-8'),
+    fs.readFile(`${basePath}.txt`, 'utf-8'),
+  ]);
 
-  // получим код языка
-  const jsonString = await fs.readFile(`${filePath}.wav.json`, 'utf-8');
-  const data = JSON.parse(jsonString);
-  const languageCode = data.result?.language ?? null;
+  // язык
+  const json = JSON.parse(jsonString);
+  const languageCode = json?.result?.language ?? null;
 
-  // получим превью текста
-  const text = await fs.readFile(`${filePath}.txt`, 'utf-8');
-  const previewText = text.length <= 2024 ? text : text.slice(0, 2024) + '...';
-
-  // удалим аудиофайл и json
-  await fs.unlink(`${filePath}.wav.json`);
-  await fs.unlink(filePath);
+  // удалим временные файлы
+  await Promise.all([fs.unlink(`${basePath}.wav.json`), fs.unlink(basePath)]);
 
   return {
     file: resultFile,
-    previewText,
-    languageCode: languageCode,
+    previewText: fullText.length <= 2024 ? fullText : fullText.slice(0, 2024) + '...',
+    languageCode,
   };
 }
+
+const getFormattedTimestamp = (): string => {
+  const now = new Date();
+  return [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+    String(now.getHours()).padStart(2, '0'),
+    String(now.getMinutes()).padStart(2, '0'),
+    String(now.getSeconds()).padStart(2, '0'),
+    String(now.getMilliseconds()).padStart(3, '0'),
+  ].join('-');
+};

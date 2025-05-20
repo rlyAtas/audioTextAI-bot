@@ -213,7 +213,7 @@ export class Chat {
     try {
       logger.debug(
         `[classes/Chat/transcriptionResult] chatId = ${this.chatId}, language = ${this.language}` +
-          `, file = ${file}, previewText = ${previewText}, languageCode = ${languageCode}`,
+          `, file = ${file}, previewText = ${previewText.trim()}, languageCode = ${languageCode}`,
       );
       const callbackData = this.createCallbackData('download', file);
       const options: SendMessageOptions = {
