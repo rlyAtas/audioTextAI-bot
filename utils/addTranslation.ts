@@ -27,12 +27,12 @@ export function addTranslation(
   return translations;
 }
 
-const key = 'buttonTranscriptionResult';
+const key = 'transcribeDownload';
 
-addTranslation('russian', key, 'Скачать файл с результатом');
-addTranslation('english', key, 'Download result file');
-addTranslation('deutsch', key, 'Ergebnisdatei herunterladen');
-addTranslation('ukrainian', key, 'Завантажити файл з результатом');
-addTranslation('spanish', key, 'Descargar archivo con el resultado');
-addTranslation('french', key, 'Télécharger le fichier de résultat');
-addTranslation('arabic', key, '\u200Fتحميل ملف النتيجة');
+addTranslation('russian', key, 'Файл с результатом транскрибации');
+addTranslation('english', key, 'File with transcription result');
+addTranslation('deutsch', key, 'Datei mit Transkriptionsergebnis');
+addTranslation('ukrainian', key, 'Файл з результатом транскрипції');
+addTranslation('spanish', key, 'Archivo con el resultado de la transcripción');
+addTranslation('french', key, 'Fichier avec le résultat de la transcription');
+addTranslation('arabic', key, '\u200Fملف يحتوي على نتيجة النسخ');

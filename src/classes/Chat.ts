@@ -2,7 +2,11 @@ import fs from 'fs/promises';
 import path from 'path';
 import { CWD } from '../utils/projectRoot.js';
 import dotenv from 'dotenv';
-import TelegramBot, { SendMessageOptions, Message } from 'node-telegram-bot-api';
+import TelegramBot, {
+  SendMessageOptions,
+  Message,
+  SendDocumentOptions,
+} from 'node-telegram-bot-api';
 import { getLogger } from './Logger.js';
 import { Language } from '../types/common.js';
 dotenv.config();
@@ -211,7 +215,7 @@ export class Chat {
         `[classes/Chat/transcriptionResult] chatId = ${this.chatId}, language = ${this.language}` +
           `, file = ${file}, previewText = ${previewText}, languageCode = ${languageCode}`,
       );
-      const callbackData = this.createCallbackData('download', languageCode);
+      const callbackData = this.createCallbackData('download', file);
       const options: SendMessageOptions = {
         parse_mode: 'HTML',
         reply_markup: {
@@ -230,6 +234,29 @@ export class Chat {
         `[classes/Chat/transcriptionResult] chatId = ${this.chatId}, language = ${this.language}` +
           `, file = ${file}, previewText = ${previewText}, languageCode = ${languageCode}` +
           `, error = ${error}`,
+      );
+      return null;
+    }
+  }
+
+  /**
+   * The message returns a file with the transcription result.
+   * @param file - path to the file
+   * @returns - message
+   */
+  async transcribeDownload(file: string): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/transcribeDownload] chatId = ${this.chatId}, language = ${this.language}`,
+      );
+      const options: SendDocumentOptions = {
+        caption: this.t('transcribeDownload'),
+        parse_mode: 'HTML',
+      };
+      return await this.bot.sendDocument(this.chatId, file, options);
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/transcribeDownload] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
       );
       return null;
     }

@@ -18,8 +18,10 @@ export async function transcribeAudio(
   const minutes = String(date.getMinutes()).padStart(2, '0');
   const seconds = String(date.getSeconds()).padStart(2, '0');
   const formattedDate = `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`;
-  // создаем имя файла
+  // создаем имя аудио файла
   const filePath = path.join(CWD, `/texts/${chatId}`, `${formattedDate}`);
+  // создаем имя файла для результата
+  const resultFile = `${formattedDate}.txt`;
 
   // скачиваем файл
   const response = await fetch(url);
@@ -40,8 +42,7 @@ export async function transcribeAudio(
   });
 
   // переименуем файлы, чтобы убрать wav
-  const resultFile = `${filePath}.txt`;
-  await fs.rename(`${filePath}.wav.txt`, resultFile);
+  await fs.rename(`${filePath}.wav.txt`, `${filePath}.txt`);
 
   // получим код языка
   const jsonString = await fs.readFile(`${filePath}.wav.json`, 'utf-8');
@@ -49,7 +50,7 @@ export async function transcribeAudio(
   const languageCode = data.result?.language ?? null;
 
   // получим превью текста
-  const text = await fs.readFile(resultFile, 'utf-8');
+  const text = await fs.readFile(`${filePath}.txt`, 'utf-8');
   const previewText = text.length <= 2024 ? text : text.slice(0, 2024) + '...';
 
   // удалим аудиофайл и json

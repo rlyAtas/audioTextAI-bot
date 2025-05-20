@@ -6,5 +6,6 @@
   "transcribeStart": "Por favor, espera mientras procesamos tu archivo de audio. ¡Esto tomará un par de minutos!",
   "unsupportedFormat": "Este formato de audio aún no es compatible.",
   "transcribeResult": "Idioma: {languageCode}\nResultado:\n\n<pre>{previewText}</pre>",
-  "buttonTranscribeResult": "Descargar archivo con el resultado"
+  "buttonTranscribeResult": "Descargar archivo con el resultado",
+  "transcribeDownload": "Archivo con el resultado de la transcripción"
 }

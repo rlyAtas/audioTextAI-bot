@@ -6,5 +6,6 @@
   "transcribeStart": "‏يرجى الانتظار بينما نقوم بمعالجة ملفك الصوتي. سيستغرق ذلك بضع دقائق!",
   "unsupportedFormat": "‏هذا التنسيق الصوتي غير مدعوم حالياً.",
   "transcribeResult": "‏اللغة: {languageCode}\nالنتيجة:\n\n<pre>{previewText}</pre>",
-  "buttonTranscribeResult": "‏تحميل ملف النتيجة"
+  "buttonTranscribeResult": "‏تحميل ملف النتيجة",
+  "transcribeDownload": "‏ملف يحتوي على نتيجة النسخ"
 }
