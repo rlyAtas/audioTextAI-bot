@@ -1,0 +1,39 @@
+name: 🚀 Deploy to Timeweb
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🔐 Подключение и деплой
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /root/audioTextAI
+            echo "📥 Pull latest code"
+            git pull origin main
+
+            echo "📦 Install deps"
+            npm install
+
+            echo "🛠 Build TypeScript"
+            npm run build
+
+            echo "🗃 Apply Prisma migrations"
+            npx prisma migrate deploy
+            # Или, если ты не используешь миграции:
+            # npx prisma db push
+
+            echo "⚙️ Generate Prisma client"
+            npx prisma generate
+
+            echo "🚀 Restart with PM2"
+            pm2 restart audiotextai_bot
