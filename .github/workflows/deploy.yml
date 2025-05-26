@@ -11,8 +11,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: ✅ Проверка переменных
+        run: |
+          echo "SERVER_IP: ${{ secrets.SERVER_IP }}"
+          echo "SERVER_USER: ${{ secrets.SERVER_USER }}"
       - name: 🔐 Подключение и деплой
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
