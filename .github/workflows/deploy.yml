@@ -11,30 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ✅ Проверка переменных
-        run: |
-          echo "Прямой доступ к vars.SERVER_IP: ${{ vars.SERVER_IP }}"
-          echo "Прямой доступ к vars.SERVER_USER: ${{ vars.SERVER_USER }}"
-          echo "Через env переменную SERVER_IP: $SERVER_IP"
-          echo "Через env переменную SERVER_USER: $SERVER_USER"
-          echo "Длина SERVER_IP: ${#SERVER_IP}"
-          echo "Длина SERVER_USER: ${#SERVER_USER}"
-
-          if [ -n "$SERVER_IP" ]; then
-            echo "✅ SERVER_IP установлен"
-          else
-            echo "❌ SERVER_IP пуст или не установлен"
-          fi
-
-          if [ -n "$SERVER_USER" ]; then
-            echo "✅ SERVER_USER установлен"
-          else
-            echo "❌ SERVER_USER пуст или не установлен"
-          fi
-        env:
-          SERVER_IP: ${{ vars.SERVER_IP }}
-          SERVER_USER: ${{ vars.SERVER_USER }}
-
       - name: 🔐 Подключение и деплой
         uses: appleboy/ssh-action@v1.1.0
         with:
@@ -42,6 +18,22 @@ jobs:
           username: ${{ vars.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            echo "🔧 Setting up Node.js environment"
+
+            # Прямо указываем пути к Node.js из NVM
+            export PATH="/root/.nvm/versions/node/v22.16.0/bin:$PATH"
+
+            echo "📍 Environment info"
+            echo "PATH: $PATH"
+            echo "Current user: $(whoami)"
+            echo "Current directory: $(pwd)"
+
+            # Проверяем доступность команд
+            echo "🔍 Checking Node.js commands:"
+            node --version
+            npm --version
+            pm2 --version
+
             cd /root/audioTextAI
             echo "📥 Pull latest code"
             git pull origin main
