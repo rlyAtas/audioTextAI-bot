@@ -13,11 +13,24 @@ jobs:
     steps:
       - name: ✅ Проверка переменных
         run: |
-          echo "1: ${{ vars.SERVER_IP }}"
-          echo "2: ${{ vars.SERVER_USER }}"
-          echo "3: ${{ SERVER_IP }}"
-          echo "4: ${{ SERVER_USER }}"
+          echo "Прямой доступ к vars.SERVER_IP: ${{ vars.SERVER_IP }}"
+          echo "Прямой доступ к vars.SERVER_USER: ${{ vars.SERVER_USER }}"
+          echo "Через env переменную SERVER_IP: $SERVER_IP"
+          echo "Через env переменную SERVER_USER: $SERVER_USER"
+          echo "Длина SERVER_IP: ${#SERVER_IP}"
+          echo "Длина SERVER_USER: ${#SERVER_USER}"
 
+          if [ -n "$SERVER_IP" ]; then
+            echo "✅ SERVER_IP установлен"
+          else
+            echo "❌ SERVER_IP пуст или не установлен"
+          fi
+
+          if [ -n "$SERVER_USER" ]; then
+            echo "✅ SERVER_USER установлен"
+          else
+            echo "❌ SERVER_USER пуст или не установлен"
+          fi
         env:
           SERVER_IP: ${{ vars.SERVER_IP }}
           SERVER_USER: ${{ vars.SERVER_USER }}
