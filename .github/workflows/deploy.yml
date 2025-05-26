@@ -13,8 +13,29 @@ jobs:
     steps:
       - name: ✅ Проверка переменных
         run: |
-          echo "SERVER_IP: ${{ secrets.SERVER_IP }}"
-          echo "SERVER_USER: ${{ secrets.SERVER_USER }}"
+          echo "Проверяем наличие секретов..."
+          echo "SERVER_IP length: ${#SERVER_IP}"
+          echo "SERVER_USER length: ${#SERVER_USER}"
+          echo "SSH_PRIVATE_KEY length: ${#SSH_PRIVATE_KEY}"
+          if [ -z "$SERVER_IP" ]; then
+            echo "❌ SERVER_IP не установлен"
+          else
+            echo "✅ SERVER_IP установлен"
+          fi
+          if [ -z "$SERVER_USER" ]; then
+            echo "❌ SERVER_USER не установлен"
+          else
+            echo "✅ SERVER_USER установлен"
+          fi
+          if [ -z "$SSH_PRIVATE_KEY" ]; then
+            echo "❌ SSH_PRIVATE_KEY не установлен"
+          else
+            echo "✅ SSH_PRIVATE_KEY установлен"
+          fi
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: 🔐 Подключение и деплой
         uses: appleboy/ssh-action@v1.1.0
         with:
