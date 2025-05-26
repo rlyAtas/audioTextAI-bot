@@ -11,34 +11,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 🔐 Подключение и деплой
+      - name: 🔐 Deploy to server
         uses: appleboy/ssh-action@v1.1.0
         with:
           host: ${{ vars.SERVER_IP }}
           username: ${{ vars.SERVER_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            echo "🔧 Setting up Node.js environment"
-
-            # Прямо указываем пути к Node.js из NVM
             export PATH="/root/.nvm/versions/node/v22.16.0/bin:$PATH"
-
-            echo "📍 Environment info"
-            echo "PATH: $PATH"
-            echo "Current user: $(whoami)"
-            echo "Current directory: $(pwd)"
-
-            # Проверяем доступность команд
-            echo "🔍 Checking Node.js commands:"
-            node --version
-            npm --version
-            pm2 --version
 
             cd /root/audioTextAI
             echo "📥 Pull latest code"
             git pull origin main
 
-            echo "📦 Install deps"
+            echo "📦 Install dependencies"
             npm install
 
             echo "🛠 Build TypeScript"
@@ -52,3 +38,5 @@ jobs:
 
             echo "🚀 Restart with PM2"
             pm2 restart audiotextai_bot
+
+            echo "✅ Deployment completed successfully"
