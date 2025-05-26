@@ -45,7 +45,10 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
     await chat.transcribeStart();
 
     const fileLink = await bot.getFileLink(audio.file_id);
-    const { file, previewText, languageCode } = await transcribeAudio(fileLink, chatId);
+    const transcribe = await transcribeAudio(fileLink, chatId);
+    if (transcribe === null) throw new Error('Transcription failed');
+
+    const { file, previewText, languageCode } = transcribe;
     await chat.transcribeResult(file, previewText, languageCode);
   } catch (error: unknown) {
     logger.error(`[handlerAudio] msg = ${JSON.stringify(message)}, error = ${error}`);
