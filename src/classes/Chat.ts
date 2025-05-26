@@ -215,7 +215,7 @@ export class Chat {
   async transcribeResult(
     file: string,
     previewText: string,
-    languageCode: string,
+    languageCode: string = 'undefined',
   ): Promise<Message | null> {
     try {
       logger.debug(
