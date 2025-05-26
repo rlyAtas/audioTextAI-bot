@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -29,8 +30,6 @@ jobs:
 
             echo "🗃 Apply Prisma migrations"
             npx prisma migrate deploy
-            # Или, если ты не используешь миграции:
-            # npx prisma db push
 
             echo "⚙️ Generate Prisma client"
             npx prisma generate
