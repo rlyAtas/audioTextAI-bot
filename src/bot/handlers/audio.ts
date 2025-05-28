@@ -23,7 +23,7 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
     // Получаем язык из базы данных
     const telegramId = BigInt(message.from!.id);
     const user = await prisma.user.findUnique({ where: { telegramId } });
-    language = user!.language;
+    language = user!.language as Language;
 
     const chat = await Chat.create(bot, chatId, language);
 
