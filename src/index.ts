@@ -19,6 +19,10 @@ const bot = new TelegramBot(requireEnv('BOT_TOKEN'), {
 });
 initBot(bot);
 
+app.get('/test', (req: Request, res: Response) => {
+  res.send('test -> ok');
+});
+
 app.post(`/bot${process.env.BOT_TOKEN}`, (req: Request, res: Response) => {
   bot.processUpdate(req.body);
   res.sendStatus(200);
@@ -26,7 +30,7 @@ app.post(`/bot${process.env.BOT_TOKEN}`, (req: Request, res: Response) => {
 
 if (process.env.NODE_ENV === 'test') {
   server = app.listen(process.env.PORT_TEST, () => {
-    logger.info(`[index] App test on production mode on port ${process.env.PORT_TEST}`);
+    logger.info(`[index] App test on test mode on port ${process.env.PORT_TEST}`);
   });
 }
 

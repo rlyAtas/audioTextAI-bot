@@ -36,6 +36,9 @@ jobs:
             echo "⚙️ Generate Prisma client"
             npx prisma generate
 
+            echo "🌱 Initialize app settings"
+            npx prisma db seed
+
             echo "🚀 Restart with PM2"
             pm2 restart audiotextai_bot
 

@@ -10,6 +10,9 @@
     "build": "npx tsc",
     "add-translation": "node --no-warnings --loader ts-node/esm utils/addTranslation.ts"
   },
+  "prisma": {
+    "seed": "node --no-warnings --loader ts-node/esm src/cli/seed.ts"
+  },
   "author": "",
   "license": "ISC",
   "devDependencies": {

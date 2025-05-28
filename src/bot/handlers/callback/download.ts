@@ -18,7 +18,7 @@ export async function download(bot: TelegramBot, query: TelegramBot.CallbackQuer
     // Получаем язык из базы данных
     const telegramId = BigInt(query.from.id);
     const user = await prisma.user.findUnique({ where: { telegramId } });
-    language = user!.language;
+    language = user!.language as Language;
 
     const chatId = query.message!.chat.id;
     const fileName = query.data?.split('_')[1];

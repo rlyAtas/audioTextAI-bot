@@ -4,8 +4,11 @@ import { nodewhisper } from 'nodejs-whisper';
 import { CWD } from '../utils/projectRoot.js';
 import pLimit from 'p-limit';
 import { getLogger } from '../classes/Logger.js';
+import { PrismaClient } from '@prisma/client';
+import { defaultWhisperModel, WhisperModel } from '../types/whisper.js';
 
 const logger = getLogger();
+const prisma = new PrismaClient();
 const transcriptionLimit = pLimit(2);
 
 interface TranscriptionResult {
@@ -14,29 +17,60 @@ interface TranscriptionResult {
   languageCode: string | undefined;
 }
 
+interface TranscriptionMetrics {
+  chatId: number;
+  fileName: string;
+  fileSize: number;
+  mimeType: string;
+  whisperModel: WhisperModel;
+  startTime: number;
+  endTime: number;
+  duration: number;
+  success: boolean;
+  languageCode?: string;
+  error?: string;
+}
+
 export async function transcribeAudio(
+  model: WhisperModel,
   url: string,
   chatId: number,
+  mimeType: string = 'unknown',
 ): Promise<TranscriptionResult | null> {
   const dir = path.join(CWD, 'texts', String(chatId));
   const timestamp = getFormattedTimestamp();
   const basePath = path.join(dir, timestamp);
 
-  try {
-    logger.debug(`[services/transcribeAudio] url = ${url}, chatId = ${chatId}`);
-    await fs.mkdir(dir, { recursive: true });
+  const metrics: TranscriptionMetrics = {
+    chatId,
+    fileName: `${timestamp}.txt`, // результирующий файл всегда .txt
+    fileSize: 0,
+    whisperModel: model,
+    mimeType,
+    startTime: Date.now(),
+    endTime: 0,
+    duration: 0,
+    success: false,
+  };
 
-    const resultFile = `${timestamp}.txt`;
+  try {
+    logger.debug(
+      `[services/transcribeAudio] url = ${url}, chatId = ${chatId}, mimeType = ${mimeType}`,
+    );
+    await fs.mkdir(dir, { recursive: true });
 
     // скачиваем и сохраняем файл
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Failed to download file: ${response.statusText}`);
-    await fs.writeFile(basePath, Buffer.from(await response.arrayBuffer()));
+
+    const audioBuffer = Buffer.from(await response.arrayBuffer());
+    metrics.fileSize = audioBuffer.length;
+    await fs.writeFile(basePath, audioBuffer);
 
     // транскрибация
     await transcriptionLimit(() =>
       nodewhisper(basePath, {
-        modelName: 'large-v3-turbo',
+        modelName: model,
         removeWavFileAfterTranscription: true,
         whisperOptions: {
           outputInText: true,
@@ -52,17 +86,32 @@ export async function transcribeAudio(
       fs.readFile(`${basePath}.txt`, 'utf-8'),
     ]);
 
-    // язык
+    // язык транскрипции
     const json = JSON.parse(jsonString);
     const languageCode = json?.result?.language ?? undefined;
 
+    metrics.endTime = Date.now();
+    metrics.duration = metrics.endTime - metrics.startTime;
+    metrics.success = true;
+    metrics.languageCode = languageCode;
+
+    logTranscriptionMetrics(metrics);
+
     return {
-      file: resultFile,
+      file: metrics.fileName,
       previewText: fullText.length <= 2024 ? fullText : fullText.slice(0, 2024) + '...',
       languageCode,
     };
   } catch (error: unknown) {
-    logger.error(`[services/transcribeAudio] url = ${url}, chatId = ${chatId}, error = ${error}`);
+    metrics.endTime = Date.now();
+    metrics.duration = metrics.endTime - metrics.startTime;
+    metrics.error = String(error);
+
+    logTranscriptionMetrics(metrics);
+
+    logger.error(
+      `[services/transcribeAudio] url = ${url}, chatId = ${chatId}, mimeType = ${mimeType}, error = ${error}`,
+    );
     return null;
   } finally {
     await Promise.allSettled([
@@ -92,3 +141,31 @@ const getFormattedTimestamp = (): string => {
     String(now.getMilliseconds()).padStart(3, '0'),
   ].join('-');
 };
+
+function formatFileSize(bytes: number): string {
+  if (bytes === 0) return '0 B';
+  const k = 1024;
+  const sizes = ['B', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+async function logTranscriptionMetrics(metrics: TranscriptionMetrics): Promise<void> {
+  const status = metrics.success ? true : false;
+  // время обработки в секундах
+  const duration = Math.round(metrics.duration / 1000);
+
+  await prisma.transcriptionLog.create({
+    data: {
+      fileName: metrics.fileName,
+      fileSize: metrics.fileSize,
+      mimeType: metrics.mimeType,
+      whisperModel: metrics.whisperModel,
+      startTime: new Date(metrics.startTime),
+      endTime: new Date(metrics.endTime),
+      duration: duration,
+      success: status,
+      detectedLang: metrics.languageCode,
+    },
+  });
+}

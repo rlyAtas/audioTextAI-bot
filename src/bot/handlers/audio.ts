@@ -4,6 +4,8 @@ import { getLogger } from '../../classes/Logger.js';
 import { Chat } from '../../classes/Chat.js';
 import { Language } from '../../types/common.js';
 import { PrismaClient } from '@prisma/client';
+// этот файл лежит в types но это не корректно
+import { WhisperModel } from '../../types/whisper.js';
 
 const logger = getLogger();
 const prisma = new PrismaClient();
@@ -23,7 +25,7 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
     // Получаем язык из базы данных
     const telegramId = BigInt(message.from!.id);
     const user = await prisma.user.findUnique({ where: { telegramId } });
-    language = user!.language;
+    language = user!.language as Language;
 
     const chat = await Chat.create(bot, chatId, language);
 
@@ -45,7 +47,9 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
     await chat.transcribeStart();
 
     const fileLink = await bot.getFileLink(audio.file_id);
-    const transcribe = await transcribeAudio(fileLink, chatId);
+
+    const model = await getCurrentWhisperModel();
+    const transcribe = await transcribeAudio(model, fileLink, chatId, audio.mime_type);
     if (transcribe === null) throw new Error('Transcription failed');
 
     const { file, previewText, languageCode } = transcribe;
@@ -55,4 +59,14 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
     const chat = await Chat.create(bot, chatId, language);
     await chat.technicalIssue();
   }
+}
+
+// TODO подумай еще раз о создании класса, у тебя в types лежат типы и хелперы
+async function getCurrentWhisperModel(): Promise<WhisperModel> {
+  const setting = await prisma.appSetting.findUnique({
+    where: { key: 'whisperModel' },
+  });
+  if (!setting) throw new Error('Whisper model setting not found');
+  const modelName = setting.value as WhisperModel;
+  return modelName;
 }

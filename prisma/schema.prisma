@@ -7,24 +7,47 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Language { 
-  russian
-  english
-  deutsch
-  ukrainian
-  spanish
-  french
-  arabic
+model User {
+  id           Int      @id @default(autoincrement())
+  telegramId   BigInt   @unique
+  username     String?
+  firstName    String
+  lastName     String?
+  languageCode String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  language     String   @default("english")
 }
 
-model User {
-  id            Int      @id @default(autoincrement())
-  telegramId    BigInt   @unique
-  username      String? 
-  firstName     String
-  lastName      String?
-  languageCode  String? 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  language      Language @default(english)
+model AppSetting {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  value       String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("app_settings")
+}
+
+model TranscriptionLog {
+  id              Int      @id @default(autoincrement())
+  fileName        String   // Имя результирующего файла (.txt)
+  originalName    String?  // Оригинальное имя файла от пользователя
+  fileSize        Int      // Размер исходного файла в байтах
+  mimeType        String   // MIME тип файла (audio/mpeg, audio/wav, etc.)
+  whisperModel    String   // Модель Whisper, которая использовалась
+  startTime       DateTime // Время начала обработки
+  endTime         DateTime // Время окончания обработки
+  duration        Int      // Длительность обработки в секундах
+  success         Boolean  // Успешно ли завершилась транскрипция
+  detectedLang    String?  // Определенный язык аудио (ISO код)
+  textLength      Int?     // Длина результирующего текста в символах
+  errorMessage    String?  // Сообщение об ошибке, если была
+  createdAt       DateTime @default(now())
+  
+  @@map("transcription_logs")
+  @@index([whisperModel])
+  @@index([createdAt])
+  @@index([success])
 }
