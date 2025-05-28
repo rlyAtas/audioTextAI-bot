@@ -22,6 +22,7 @@ interface TranscriptionMetrics {
   fileName: string;
   fileSize: number;
   mimeType: string;
+  whisperModel: WhisperModel;
   startTime: number;
   endTime: number;
   duration: number;
@@ -31,6 +32,7 @@ interface TranscriptionMetrics {
 }
 
 export async function transcribeAudio(
+  model: WhisperModel,
   url: string,
   chatId: number,
   mimeType: string = 'unknown',
@@ -43,6 +45,7 @@ export async function transcribeAudio(
     chatId,
     fileName: `${timestamp}.txt`, // результирующий файл всегда .txt
     fileSize: 0,
+    whisperModel: model,
     mimeType,
     startTime: Date.now(),
     endTime: 0,
@@ -65,10 +68,9 @@ export async function transcribeAudio(
     await fs.writeFile(basePath, audioBuffer);
 
     // транскрибация
-    const currentModel = await getCurrentWhisperModel();
     await transcriptionLimit(() =>
       nodewhisper(basePath, {
-        modelName: currentModel,
+        modelName: model,
         removeWavFileAfterTranscription: true,
         whisperOptions: {
           outputInText: true,
@@ -148,38 +150,22 @@ function formatFileSize(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-function logTranscriptionMetrics(metrics: TranscriptionMetrics): void {
-  const status = metrics.success ? 'SUCCESS' : 'FAILED';
-  const duration = (metrics.duration / 1000).toFixed(2);
+async function logTranscriptionMetrics(metrics: TranscriptionMetrics): Promise<void> {
+  const status = metrics.success ? true : false;
+  // время обработки в секундах
+  const duration = Math.round(metrics.duration / 1000);
 
-  if (metrics.success) {
-    logger.info(
-      `[TRANSCRIPTION_${status}] ` +
-        `ChatId: ${metrics.chatId}, ` +
-        `ResultFile: ${metrics.fileName}, ` +
-        `Size: ${formatFileSize(metrics.fileSize)}, ` +
-        `Type: ${metrics.mimeType}, ` +
-        `Duration: ${duration}s, ` +
-        `Language: ${metrics.languageCode || 'unknown'}`,
-    );
-  } else {
-    logger.error(
-      `[TRANSCRIPTION_${status}] ` +
-        `ChatId: ${metrics.chatId}, ` +
-        `ResultFile: ${metrics.fileName}, ` +
-        `Size: ${formatFileSize(metrics.fileSize)}, ` +
-        `Type: ${metrics.mimeType}, ` +
-        `Duration: ${duration}s, ` +
-        `Error: ${metrics.error}`,
-    );
-  }
-}
-
-async function getCurrentWhisperModel(): Promise<WhisperModel> {
-  const setting = await prisma.appSetting.findUnique({
-    where: { key: 'whisperModel' },
+  await prisma.transcriptionLog.create({
+    data: {
+      fileName: metrics.fileName,
+      fileSize: metrics.fileSize,
+      mimeType: metrics.mimeType,
+      whisperModel: metrics.whisperModel,
+      startTime: new Date(metrics.startTime),
+      endTime: new Date(metrics.endTime),
+      duration: duration,
+      success: status,
+      detectedLang: metrics.languageCode,
+    },
   });
-  if (!setting) throw new Error('Whisper model setting not found');
-  const modelName = setting.value as WhisperModel;
-  return modelName;
 }
