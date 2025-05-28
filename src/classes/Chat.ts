@@ -268,4 +268,121 @@ export class Chat {
       return null;
     }
   }
+
+  /**
+   * Сообщение об ошибке при установке недоступной модели
+   * @param modelName - название модели
+   * @param availableModels - список доступных моделей
+   * @returns - message
+   */
+  async modelNotAvailable(modelName: string, availableModels: string): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/modelNotAvailable] chatId = ${this.chatId}, language = ${this.language}, modelName = ${modelName}`,
+      );
+
+      const errorMessages = {
+        russian: `Модель "${modelName}" недоступна.\nДоступные модели: ${availableModels}`,
+        english: `Model "${modelName}" is not available.\nAvailable models: ${availableModels}`,
+        deutsch: `Modell "${modelName}" ist nicht verfügbar.\nVerfügbare Modelle: ${availableModels}`,
+        ukrainian: `Модель "${modelName}" недоступна.\nДоступні моделі: ${availableModels}`,
+        spanish: `El modelo "${modelName}" no está disponible.\nModelos disponibles: ${availableModels}`,
+        french: `Le modèle "${modelName}" n'est pas disponible.\nModèles disponibles: ${availableModels}`,
+        arabic: `النموذج "${modelName}" غير متاح.\nالنماذج المتاحة: ${availableModels}`,
+      };
+
+      const options: SendMessageOptions = {
+        parse_mode: 'HTML',
+      };
+      return await this.bot.sendMessage(this.chatId, errorMessages[this.language], options);
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/modelNotAvailable] chatId = ${this.chatId}, language = ${this.language}, modelName = ${modelName}, error = ${error}`,
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Сообщение об успешной установке модели
+   * @param modelName - название модели
+   * @returns - message
+   */
+  async modelSetSuccess(modelName: string): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/modelSetSuccess] chatId = ${this.chatId}, language = ${this.language}, modelName = ${modelName}`,
+      );
+
+      const successMessages = {
+        russian: `Модель Whisper изменена на: ${modelName}`,
+        english: `Whisper model set to: ${modelName}`,
+        deutsch: `Whisper-Modell auf ${modelName} gesetzt`,
+        ukrainian: `Модель Whisper змінена на: ${modelName}`,
+        spanish: `Modelo Whisper configurado a: ${modelName}`,
+        french: `Modèle Whisper défini sur: ${modelName}`,
+        arabic: `تم تعيين نموذج Whisper إلى: ${modelName}`,
+      };
+
+      const options: SendMessageOptions = {
+        parse_mode: 'HTML',
+      };
+      return await this.bot.sendMessage(this.chatId, successMessages[this.language], options);
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/modelSetSuccess] chatId = ${this.chatId}, language = ${this.language}, modelName = ${modelName}, error = ${error}`,
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Сообщение со списком доступных моделей
+   * @param models - массив доступных моделей
+   * @param currentModel - текущая модель
+   * @returns - message
+   */
+  async modelsList(models: readonly string[], currentModel: string): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/modelsList] chatId = ${this.chatId}, language = ${this.language}, currentModel = ${currentModel}`,
+      );
+
+      const headers = {
+        russian: '<b>Доступные модели Whisper:</b>\n\n',
+        english: '<b>Available Whisper models:</b>\n\n',
+        deutsch: '<b>Verfügbare Whisper-Modelle:</b>\n\n',
+        ukrainian: '<b>Доступні моделі Whisper:</b>\n\n',
+        spanish: '<b>Modelos Whisper disponibles:</b>\n\n',
+        french: '<b>Modèles Whisper disponibles:</b>\n\n',
+        arabic: '<b>نماذج Whisper المتاحة:</b>\n\n',
+      };
+
+      const footers = {
+        russian: `\n<b>Текущая модель:</b> ${currentModel}`,
+        english: `\n<b>Current model:</b> ${currentModel}`,
+        deutsch: `\n<b>Aktuelles Modell:</b> ${currentModel}`,
+        ukrainian: `\n<b>Поточна модель:</b> ${currentModel}`,
+        spanish: `\n<b>Modelo actual:</b> ${currentModel}`,
+        french: `\n<b>Modèle actuel:</b> ${currentModel}`,
+        arabic: `\n<b>النموذج الحالي:</b> ${currentModel}`,
+      };
+
+      let message = headers[this.language];
+      models.forEach((modelName) => {
+        message += `${modelName}\n`;
+      });
+      message += footers[this.language];
+
+      const options: SendMessageOptions = {
+        parse_mode: 'HTML',
+      };
+      return await this.bot.sendMessage(this.chatId, message, options);
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/modelsList] chatId = ${this.chatId}, language = ${this.language}, currentModel = ${currentModel}, error = ${error}`,
+      );
+      return null;
+    }
+  }
 }
