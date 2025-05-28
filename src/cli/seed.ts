@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { defaultWhisperModel } from '../types/whisper.js';
 
 const prisma = new PrismaClient();
 
@@ -6,8 +7,8 @@ async function main() {
   // Создаем базовые настройки приложения
   const settings = [
     {
-      key: 'current_whisper_model',
-      value: 'large-v3-turbo',
+      key: 'whisperModel',
+      value: defaultWhisperModel,
       description: 'Currently active Whisper model for transcriptions',
     },
   ];
