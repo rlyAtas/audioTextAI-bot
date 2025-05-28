@@ -4,8 +4,11 @@ import { nodewhisper } from 'nodejs-whisper';
 import { CWD } from '../utils/projectRoot.js';
 import pLimit from 'p-limit';
 import { getLogger } from '../classes/Logger.js';
+import { PrismaClient } from '@prisma/client';
+import { defaultWhisperModel, WhisperModel } from '../types/whisper.js';
 
 const logger = getLogger();
+const prisma = new PrismaClient();
 const transcriptionLimit = pLimit(2);
 
 interface TranscriptionResult {
@@ -62,9 +65,10 @@ export async function transcribeAudio(
     await fs.writeFile(basePath, audioBuffer);
 
     // транскрибация
+    const currentModel = await getCurrentWhisperModel();
     await transcriptionLimit(() =>
       nodewhisper(basePath, {
-        modelName: 'large-v3-turbo',
+        modelName: currentModel,
         removeWavFileAfterTranscription: true,
         whisperOptions: {
           outputInText: true,
@@ -169,4 +173,13 @@ function logTranscriptionMetrics(metrics: TranscriptionMetrics): void {
         `Error: ${metrics.error}`,
     );
   }
+}
+
+async function getCurrentWhisperModel(): Promise<WhisperModel> {
+  const setting = await prisma.appSetting.findUnique({
+    where: { key: 'whisperModel' },
+  });
+  if (!setting) throw new Error('Whisper model setting not found');
+  const modelName = setting.value as WhisperModel;
+  return modelName;
 }
