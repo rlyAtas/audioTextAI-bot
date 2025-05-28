@@ -39,7 +39,7 @@ model TranscriptionLog {
   whisperModel    String   // Модель Whisper, которая использовалась
   startTime       DateTime // Время начала обработки
   endTime         DateTime // Время окончания обработки
-  duration        Int      // Длительность обработки в миллисекундах
+  duration        Int      // Длительность обработки в секундах
   success         Boolean  // Успешно ли завершилась транскрипция
   detectedLang    String?  // Определенный язык аудио (ISO код)
   textLength      Int?     // Длина результирующего текста в символах
