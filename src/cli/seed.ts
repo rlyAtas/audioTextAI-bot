@@ -3,6 +3,8 @@ import { defaultWhisperModel } from '../types/whisper.js';
 
 const prisma = new PrismaClient();
 
+// TODO использовать класс SettingsService???
+
 async function main() {
   // Создаем базовые настройки приложения
   const settings = [
