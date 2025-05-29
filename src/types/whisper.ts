@@ -3,8 +3,7 @@ export const whisperModels = [
   'base',
   'small',
   'medium',
-  'large-v2',
-  'large-v3',
+  'large',
   'large-v3-turbo',
 ] as const;
 
