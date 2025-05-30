@@ -1,11 +1,4 @@
-export const whisperModels = [
-  'tiny',
-  'base',
-  'small',
-  'medium',
-  'large',
-  'large-v3-turbo',
-] as const;
+export const whisperModels = ['tiny', 'base', 'small', 'medium', 'large-v3-turbo'] as const;
 
 export type WhisperModel = (typeof whisperModels)[number];
 
