@@ -29,7 +29,9 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
 
     const chat = await Chat.create(bot, chatId, language);
 
+    // wav файлы могут быть восприняты как document, а ogg файлы как voice, остальные как audio
     const audio = message.audio || message.document || message.voice;
+
     const supportedTypes = [
       'audio/mpeg',
       'audio/wav',
@@ -44,7 +46,13 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
       return;
     }
 
-    await chat.transcribeStart();
+    // Получаем информацию о файле для отображения
+    const fileName = getFileName(message);
+
+    // Получаем длительность в зависимости от типа файла
+    const duration = getDuration(message);
+
+    await chat.transcribeStart(fileName, duration);
 
     const fileLink = await bot.getFileLink(audio.file_id);
 
@@ -69,4 +77,28 @@ async function getCurrentWhisperModel(): Promise<WhisperModel> {
   if (!setting) throw new Error('Whisper model setting not found');
   const modelName = setting.value as WhisperModel;
   return modelName;
+}
+
+function getFileName(message: Message): string {
+  if (message.audio) return message.audio.title || 'audio';
+  if (message.document) return message.document.file_name || 'document';
+  if (message.voice) return 'voice';
+  return 'unknown';
+}
+
+function getDuration(message: Message): string {
+  let seconds: number | undefined;
+  if (message.audio) seconds = message.audio.duration;
+  if (message.voice) seconds = message.voice.duration;
+  if (seconds === undefined) return 'unknown';
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  } else {
+    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+  }
 }
