@@ -4,6 +4,7 @@
   "technicalIssue": "⚠️\nWe have temporary technical difficulties.\nWe are already working on fixing it.",
   "startLanguageSet": "Welcome!\n\nI’m a bot that converts audio and voice messages into text.\n\nJust send a <b>voice message</b> or an <b>audio file</b> — I’ll transcribe it and send you the text.",
   "transcribeStart": "Please wait while we process your audio file. This will take a couple of minutes!",
+  "transcribeStartWithInfo": "🎵 Name: <b>{fileName}</b>\n⏱ Duration: <b>{duration}</b>\n\nPlease wait while we process your audio file. This will take a couple of minutes!",
   "unsupportedFormat": "This audio format is not supported yet.",
   "transcribeResult": "Language: {languageCode}\nResult:\n\n<pre>{previewText}</pre>",
   "buttonTranscribeResult": "Download result file",
