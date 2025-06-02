@@ -38,6 +38,7 @@ export async function transcribeAudio(
   url: string,
   chatId: number,
   chat: Chat,
+  messageId: number,
   fileName: string,
   duration: string,
   mimeType: string = 'unknown',
@@ -76,15 +77,15 @@ export async function transcribeAudio(
     await fs.writeFile(basePath, audioBuffer);
 
     // Уведомляем пользователя о начале обработки
-    const processingMessage = await chat.transcribeProcessingStart(fileName, duration);
-    const messageId = processingMessage?.message_id;
+    await chat.transcribeProcessingStart(messageId, fileName, duration);
+    // const messageId = processingMessage?.message_id;
 
     // конвертируем аудио в WAV формат для whisper.cpp
     await convertAudioToWav(basePath, wavPath);
 
     // транскрибация
     await transcriptionLimit(() =>
-      transcribeWithWhisperCpp(basePath, wavPath, model, chat, messageId),
+      transcribeWithWhisperCpp(basePath, wavPath, model, chat, messageId, fileName, duration),
     );
 
     const [jsonString, fullText] = await Promise.all([
@@ -244,11 +245,15 @@ async function transcribeWithWhisperCpp(
   basePath: string,
   audioPath: string,
   model: WhisperModel,
-  chat?: Chat,
-  messageId?: number,
+  chat: Chat,
+  messageId: number,
+  fileName: string,
+  duration: string,
 ): Promise<void> {
   logger.debug(
-    `[services/transcribeAudio/transcribeWithWhisperCpp] basePath = ${basePath}, audioPath = ${audioPath}, model = ${model}`,
+    '[services/transcribeAudio/transcribeWithWhisperCpp]' +
+      `basePath = ${basePath}, audioPath = ${audioPath}, model = ${model}` +
+      `, messageId = ${messageId}, fileName = ${fileName}, duration = ${duration}`,
   );
 
   const whisperPath = requireEnv('WHISPER_PATH');
@@ -265,6 +270,8 @@ async function transcribeWithWhisperCpp(
       audioPath,
       '-t',
       threads,
+      '--language',
+      'auto',
       '--output-json', // выводить JSON
       '--output-txt',
       '--output-file',
@@ -278,7 +285,7 @@ async function transcribeWithWhisperCpp(
 
     let stdout = '';
     let stderr = '';
-    let lastProgressUpdate = 0;
+    let lastProgressUpdate = Date.now();
 
     whisperProcess.stdout.on('data', (data) => {
       stdout += data.toString();
@@ -287,22 +294,27 @@ async function transcribeWithWhisperCpp(
     whisperProcess.stderr.on('data', (data) => {
       const output = data.toString();
       stderr += output;
+      // console.log(' ===== output =', output);
 
       // Обрабатываем прогресс из stderr (whisper.cpp выводит прогресс в stderr)
       if (chat && messageId) {
-        const progressMatch = output.match(/progress = (\d+)%/);
+        const progressMatch = output.match(/progress =\s+(\d+)%/);
+
         if (progressMatch) {
           const progress = parseInt(progressMatch[1]);
+          console.log(' ===== progress =', progress);
           const now = Date.now();
 
           // Обновляем прогресс максимум раз в 2 секунды, чтобы не спамить API
           if (now - lastProgressUpdate > 2000) {
             lastProgressUpdate = now;
-            chat.transcribeProgressUpdate(messageId, progress).catch((error) => {
-              logger.error(
-                `[services/transcribeAudio/transcribeWithWhisperCpp] Failed to update progress: ${error}`,
-              );
-            });
+            chat
+              .transcribeProgressUpdate(messageId, progress, fileName, duration)
+              .catch((error) => {
+                logger.error(
+                  `[services/transcribeAudio/transcribeWithWhisperCpp] Failed to update progress: ${error}`,
+                );
+              });
           }
         }
       }

@@ -4,6 +4,7 @@ import { CWD } from '../utils/projectRoot.js';
 import dotenv from 'dotenv';
 import TelegramBot, {
   SendMessageOptions,
+  EditMessageTextOptions,
   Message,
   SendDocumentOptions,
 } from 'node-telegram-bot-api';
@@ -158,35 +159,6 @@ export class Chat {
     } catch (error: unknown) {
       logger.error(
         `[classes/Chat/startLanguageSet] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
-      );
-      return null;
-    }
-  }
-
-  /**
-   * The method informs the user that the transcription process has started.
-   * @param fileName - name of the audio file
-   * @param duration - duration in seconds
-   * @returns - message
-   */
-  async transcribeStart(fileName: string, duration: string): Promise<Message | null> {
-    try {
-      logger.debug(
-        `[classes/Chat/transcribeStart] chatId = ${this.chatId}, language = ${this.language}, fileName = ${fileName}, duration = ${duration}`,
-      );
-
-      const options: SendMessageOptions = {
-        parse_mode: 'HTML',
-      };
-
-      return this.bot.sendMessage(
-        this.chatId,
-        this.t('transcribeStartWithInfo', { fileName, duration }),
-        options,
-      );
-    } catch (error: unknown) {
-      logger.error(
-        `[classes/Chat/transcribeStart] chatId = ${this.chatId}, language = ${this.language}, fileName = ${fileName}, duration = ${duration}, error = ${error}`,
       );
       return null;
     }
@@ -425,30 +397,41 @@ export class Chat {
 
   /**
    * The method informs the user that processing has started (audio conversion).
+   * @param messageId - ID of the message to edit
    * @param fileName - name of the audio file
    * @param duration - duration in seconds
    * @returns - message
    */
-  async transcribeProcessingStart(fileName: string, duration: string): Promise<Message | null> {
+  async transcribeProcessingStart(
+    messageId: number,
+    fileName: string,
+    duration: string,
+  ): Promise<Message | null> {
     try {
       logger.debug(
-        `[classes/Chat/transcribeProcessingStart] chatId = ${this.chatId}, language = ${this.language}, fileName = ${fileName}, duration = ${duration}`,
+        '[classes/Chat/transcribeProcessingStart]' +
+          ` chatId = ${this.chatId}, language = ${this.language}` +
+          ` messageId = ${messageId}, fileName = ${fileName}, duration = ${duration}`,
       );
 
-      const options: SendMessageOptions = {
+      const options: EditMessageTextOptions = {
+        chat_id: this.chatId,
+        message_id: messageId,
         parse_mode: 'HTML',
       };
 
-      const message = await this.bot.sendMessage(
-        this.chatId,
+      const result = await this.bot.editMessageText(
         this.t('transcribeProcessingStart', { fileName, duration }),
         options,
       );
 
-      return message;
+      return typeof result === 'boolean' ? null : result;
     } catch (error: unknown) {
       logger.error(
-        `[classes/Chat/transcribeProcessingStart] chatId = ${this.chatId}, language = ${this.language}, fileName = ${fileName}, duration = ${duration}, error = ${error}`,
+        '[classes/Chat/transcribeProcessingStart]' +
+          ` chatId = ${this.chatId}, language = ${this.language}` +
+          ` messageId = ${messageId}, fileName = ${fileName}, duration = ${duration}` +
+          `, error = ${error}`,
       );
       return null;
     }
@@ -458,31 +441,36 @@ export class Chat {
    * Update the processing message with progress information.
    * @param messageId - ID of the message to edit
    * @param progress - progress percentage (0-100)
+   * @param fileName - name of the audio file
+   * @param duration - duration in seconds
    * @returns - edited message
    */
-  async transcribeProgressUpdate(messageId: number, progress: number): Promise<Message | null> {
+  async transcribeProgressUpdate(
+    messageId: number,
+    progress: number,
+    fileName: string,
+    duration: string,
+  ): Promise<Message | null> {
     try {
       logger.debug(
-        `[classes/Chat/transcribeProgressUpdate] chatId = ${this.chatId}, language = ${this.language}, messageId = ${messageId}, progress = ${progress}`,
+        `[classes/Chat/transcribeProgressUpdate] chatId = ${this.chatId}, language = ${this.language}, messageId = ${messageId}, progress = ${progress}, fileName = ${fileName}, duration = ${duration}`,
       );
 
-      const options: SendMessageOptions = {
+      const options: EditMessageTextOptions = {
+        chat_id: this.chatId,
+        message_id: messageId,
         parse_mode: 'HTML',
       };
 
       const result = await this.bot.editMessageText(
-        this.t('transcribeProgress', { progress: progress.toString() }),
-        {
-          chat_id: this.chatId,
-          message_id: messageId,
-          parse_mode: 'HTML',
-        },
+        this.t('transcribeProgress', { progress: progress.toString(), fileName, duration }),
+        options,
       );
 
       return typeof result === 'boolean' ? null : result;
     } catch (error: unknown) {
       logger.error(
-        `[classes/Chat/transcribeProgressUpdate] chatId = ${this.chatId}, language = ${this.language}, messageId = ${messageId}, progress = ${progress}, error = ${error}`,
+        `[classes/Chat/transcribeProgressUpdate] chatId = ${this.chatId}, language = ${this.language}, messageId = ${messageId}, progress = ${progress}, fileName = ${fileName}, duration = ${duration}, error = ${error}`,
       );
       return null;
     }

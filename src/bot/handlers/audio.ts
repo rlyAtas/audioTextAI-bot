@@ -46,14 +46,11 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
       return;
     }
 
-    // Получаем информацию о файле для отображения
     const fileName = getFileName(message);
-
-    // Получаем длительность в зависимости от типа файла
     const duration = getDuration(message);
 
-    // Уведомляем пользователя о получении файла и добавлении в очередь
-    await chat.transcribeFileReceived(fileName, duration);
+    const tgMessage = await chat.transcribeFileReceived(fileName, duration);
+    if (tgMessage === null) throw new Error('Failed to send transcribe file received message');
 
     const fileLink = await bot.getFileLink(audio.file_id);
 
@@ -63,6 +60,7 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
       fileLink,
       chatId,
       chat,
+      tgMessage.message_id,
       fileName,
       duration,
       audio.mime_type,
