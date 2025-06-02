@@ -4,9 +4,12 @@
   "technicalIssue": "⚠️\nWir haben temporäre technische Schwierigkeiten.\nWir arbeiten bereits daran, sie zu beheben.",
   "startLanguageSet": "Willkommen!\n\nIch bin ein Bot, der Audio- und Sprachnachrichten in Text umwandelt.\n\nSende einfach eine <b>Sprachnachricht</b> oder eine <b>Audiodatei</b> – ich transkribiere sie und sende dir den Text.",
   "transcribeStart": "Bitte warten Sie, während wir Ihre Audiodatei verarbeiten. Das dauert ein paar Minuten!",
-  "transcribeStartWithInfo": "🎵 Name: <b>{fileName}</b>\n⏱ Dauer: <b>{duration}</b>\n\nBitte warten Sie, während wir Ihre Audiodatei verarbeiten. Das dauert ein paar Minuten!",
+  "transcribeFileReceived": "📁 Datei erhalten!\n\n🎵 Name: <b>{fileName}</b>\n⏱ Dauer: <b>{duration}</b>\n\n⏳ Ihre Datei wurde zur Verarbeitungsqueue hinzugefügt. Die Transkription wird durchgeführt, sobald die Queue es zulässt.\n\n<i>Die Verarbeitungszeit hängt von der Dateigröße und der aktuellen Serverauslastung ab. Wir senden Ihnen eine Nachricht, wenn alles fertig ist.</i>",
+  "transcribeProcessingStart": "🔄 <b>Transkription gestartet!</b>\n\n🎵 Name: <b>{fileName}</b>\n⏱ Dauer: <b>{duration}</b>\n\nFortschritt: <b>0%</b>",
+  "transcribeProgress": "🔄 <b>Transkription läuft...</b>\n\n🎵 Name: <b>{fileName}</b>\n⏱ Dauer: <b>{duration}</b>\n\nFortschritt: <b>{progress}%</b>",
+  "transcribeCompleted": "✅ <b>Transkription abgeschlossen!</b>\n\n🎵 Name: <b>{fileName}</b>\n⏱ Dauer: <b>{duration}</b>\n🗣 Sprache: <b>{languageCode}</b>",
   "unsupportedFormat": "Dieses Audioformat wird derzeit nicht unterstützt.",
-  "transcribeResult": "Sprache: {languageCode}\nErgebnis:\n\n<pre>{previewText}</pre>",
+  "transcribeResult": "{previewText}",
   "buttonTranscribeResult": "Ergebnisdatei herunterladen",
   "transcribeDownload": "Datei mit Transkriptionsergebnis"
 }

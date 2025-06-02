@@ -46,22 +46,29 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
       return;
     }
 
-    // Получаем информацию о файле для отображения
     const fileName = getFileName(message);
-
-    // Получаем длительность в зависимости от типа файла
     const duration = getDuration(message);
 
-    await chat.transcribeStart(fileName, duration);
+    const tgMessage = await chat.transcribeFileReceived(fileName, duration);
+    if (tgMessage === null) throw new Error('Failed to send transcribe file received message');
 
     const fileLink = await bot.getFileLink(audio.file_id);
 
     const model = await getCurrentWhisperModel();
-    const transcribe = await transcribeAudio(model, fileLink, chatId, audio.mime_type);
+    const transcribe = await transcribeAudio(
+      model,
+      fileLink,
+      chatId,
+      chat,
+      tgMessage.message_id,
+      fileName,
+      duration,
+      audio.mime_type,
+    );
     if (transcribe === null) throw new Error('Transcription failed');
 
-    const { file, previewText, languageCode } = transcribe;
-    await chat.transcribeResult(file, previewText, languageCode);
+    const { file, previewText } = transcribe;
+    await chat.transcribeResult(file, previewText);
   } catch (error: unknown) {
     logger.error(`[handlerAudio] msg = ${JSON.stringify(message)}, error = ${error}`);
     const chat = await Chat.create(bot, chatId, language);
