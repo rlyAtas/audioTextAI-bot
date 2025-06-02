@@ -91,8 +91,6 @@ WHISPER_PATH=/path/to/whisper.cpp/main  # macOS (локальная сборка
 # Количество потоков для обработки (рекомендуется: количество ядер CPU)
 WHISPER_THREADS=4
 
-# Путь к папке с моделями (опционально)
-WHISPER_MODELS_PATH=/usr/local/share/whisper/models
 ```
 
 ## ⚙️ Установка
