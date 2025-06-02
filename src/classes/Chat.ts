@@ -393,4 +393,33 @@ export class Chat {
       return null;
     }
   }
+
+  /**
+   * The method informs the user that the file has been received and added to the processing queue.
+   * @param fileName - name of the audio file
+   * @param duration - duration in seconds
+   * @returns - message
+   */
+  async transcribeFileReceived(fileName: string, duration: string): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/transcribeFileReceived] chatId = ${this.chatId}, language = ${this.language}, fileName = ${fileName}, duration = ${duration}`,
+      );
+
+      const options: SendMessageOptions = {
+        parse_mode: 'HTML',
+      };
+
+      return this.bot.sendMessage(
+        this.chatId,
+        this.t('transcribeFileReceived', { fileName, duration }),
+        options,
+      );
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/transcribeFileReceived] chatId = ${this.chatId}, language = ${this.language}, fileName = ${fileName}, duration = ${duration}, error = ${error}`,
+      );
+      return null;
+    }
+  }
 }

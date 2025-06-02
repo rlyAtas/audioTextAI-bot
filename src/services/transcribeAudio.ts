@@ -84,6 +84,7 @@ export async function transcribeAudio(
 
     // язык транскрипции
     const json = JSON.parse(jsonString);
+    console.log('====== json?.result = ', json?.result);
     const languageCode = json?.result?.language ?? undefined;
 
     metrics.endTime = Date.now();
@@ -121,11 +122,11 @@ export async function transcribeAudio(
           `[services/transcribeAudio] Failed to delete WAV file: ${wavPath}.json, error: ${error}`,
         );
       }),
-      fs.unlink(jsonPath).catch((error: unknown) => {
-        logger.error(
-          `[services/transcribeAudio] Failed to delete JSON file: ${jsonPath}, error: ${error}`,
-        );
-      }),
+      // fs.unlink(jsonPath).catch((error: unknown) => {
+      //   logger.error(
+      //     `[services/transcribeAudio] Failed to delete JSON file: ${jsonPath}, error: ${error}`,
+      //   );
+      // }),
     ]);
   }
 }

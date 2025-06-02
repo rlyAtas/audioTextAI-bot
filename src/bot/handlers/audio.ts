@@ -52,7 +52,8 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
     // Получаем длительность в зависимости от типа файла
     const duration = getDuration(message);
 
-    await chat.transcribeStart(fileName, duration);
+    // Уведомляем пользователя о получении файла и добавлении в очередь
+    await chat.transcribeFileReceived(fileName, duration);
 
     const fileLink = await bot.getFileLink(audio.file_id);
 
