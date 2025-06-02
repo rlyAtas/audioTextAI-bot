@@ -38,6 +38,8 @@ export async function transcribeAudio(
   url: string,
   chatId: number,
   chat: Chat,
+  fileName: string,
+  duration: string,
   mimeType: string = 'unknown',
 ): Promise<TranscriptionResult | null> {
   const dir = path.join(CWD, 'texts', String(chatId));
@@ -74,7 +76,7 @@ export async function transcribeAudio(
     await fs.writeFile(basePath, audioBuffer);
 
     // Уведомляем пользователя о начале обработки
-    const processingMessage = await chat.transcribeProcessingStart();
+    const processingMessage = await chat.transcribeProcessingStart(fileName, duration);
     const messageId = processingMessage?.message_id;
 
     // конвертируем аудио в WAV формат для whisper.cpp

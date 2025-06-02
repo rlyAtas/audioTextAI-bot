@@ -425,12 +425,14 @@ export class Chat {
 
   /**
    * The method informs the user that processing has started (audio conversion).
+   * @param fileName - name of the audio file
+   * @param duration - duration in seconds
    * @returns - message
    */
-  async transcribeProcessingStart(): Promise<Message | null> {
+  async transcribeProcessingStart(fileName: string, duration: string): Promise<Message | null> {
     try {
       logger.debug(
-        `[classes/Chat/transcribeProcessingStart] chatId = ${this.chatId}, language = ${this.language}`,
+        `[classes/Chat/transcribeProcessingStart] chatId = ${this.chatId}, language = ${this.language}, fileName = ${fileName}, duration = ${duration}`,
       );
 
       const options: SendMessageOptions = {
@@ -439,14 +441,14 @@ export class Chat {
 
       const message = await this.bot.sendMessage(
         this.chatId,
-        this.t('transcribeProcessingStart'),
+        this.t('transcribeProcessingStart', { fileName, duration }),
         options,
       );
 
       return message;
     } catch (error: unknown) {
       logger.error(
-        `[classes/Chat/transcribeProcessingStart] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
+        `[classes/Chat/transcribeProcessingStart] chatId = ${this.chatId}, language = ${this.language}, fileName = ${fileName}, duration = ${duration}, error = ${error}`,
       );
       return null;
     }

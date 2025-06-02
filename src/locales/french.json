@@ -1,7 +1,7 @@
 {
   "transcribeStart": "Veuillez patienter pendant que nous traitons votre fichier audio. Cela prendra quelques minutes !",
   "transcribeFileReceived": "📁 Fichier reçu !\n\n🎵 Nom : <b>{fileName}</b>\n⏱ Durée : <b>{duration}</b>\n\n⏳ Votre fichier a été ajouté à la file d'attente de traitement. La transcription sera effectuée dès que la file le permettra.\n\n<i>Le temps de traitement dépend de la durée du fichier et de la charge actuelle du serveur. Nous vous enverrons un message quand tout sera prêt.</i>",
-  "transcribeProcessingStart": "🔄 <b>Traitement commencé !</b>\n\nConversion de l'audio au format WAV pour la transcription...",
+  "transcribeProcessingStart": "🔄 <b>Traitement commencé !</b>\n\n🎵 Nom : <b>{fileName}</b>\n⏱ Durée : <b>{duration}</b>\n\nProgrès : <b>0%</b>",
   "transcribeProgress": "🔄 <b>Transcription en cours...</b>\n\n📊 Progrès : <b>{progress}%</b>",
   "transcribeStartWithInfo": "🎵 Nom : <b>{fileName}</b>\n⏱ Durée : <b>{duration}</b>\n\nVeuillez patienter pendant que nous traitons votre fichier audio. Cela prendra quelques minutes !",
   "languagesList": "🌍\nChoisissez la langue de l’interface.\n<i>Il ne s’agit pas de la langue audio – elle est détectée automatiquement.</i>",
