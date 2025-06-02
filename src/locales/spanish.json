@@ -4,7 +4,7 @@
   "technicalIssue": "⚠️\nTenemos dificultades técnicas temporales.\nYa estamos trabajando en solucionarlos.",
   "startLanguageSet": "¡Bienvenido!\n\nSoy un bot que convierte mensajes de voz y archivos de audio en texto.\n\nSimplemente envía un <b>mensaje de voz</b> o un <b>archivo de audio</b> — lo transcribiré y te enviaré el texto.",
   "transcribeStart": "Por favor, espera mientras procesamos tu archivo de audio. ¡Esto tomará un par de minutos!",
-  "transcribeFileReceived": "📁 ¡Archivo recibido!\n\n🎵 Nombre: <b>{fileName}</b>\n⏱ Duración: <b>{duration}</b>\n\n⏳ Tu archivo ha sido añadido a la cola de procesamiento. La transcripción se realizará tan pronto como lo permita la cola.\n\n<i>El tiempo de procesamiento depende de la duración del archivo y la carga actual del servidor. Es normal si el resultado no llega inmediatamente.</i>",
+  "transcribeFileReceived": "📁 ¡Archivo recibido!\n\n🎵 Nombre: <b>{fileName}</b>\n⏱ Duración: <b>{duration}</b>\n\n⏳ Tu archivo ha sido añadido a la cola de procesamiento. La transcripción se realizará tan pronto como lo permita la cola.\n\n<i>El tiempo de procesamiento depende de la duración del archivo y la carga actual del servidor. Te enviaremos un mensaje cuando todo esté listo.</i>",
   "transcribeProcessingStart": "🔄 <b>¡Procesamiento iniciado!</b>\n\nConvirtiendo audio al formato WAV para transcripción...",
   "transcribeProgress": "🔄 <b>Transcripción en progreso...</b>\n\n📊 Progreso: <b>{progress}%</b>",
   "transcribeStartWithInfo": "🎵 Nombre: <b>{fileName}</b>\n⏱ Duración: <b>{duration}</b>\n\nPor favor, espera mientras procesamos tu archivo de audio. ¡Esto tomará un par de minutos!",
