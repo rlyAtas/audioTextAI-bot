@@ -7,8 +7,9 @@
   "transcribeFileReceived": "📁 File received!\n\n🎵 Name: <b>{fileName}</b>\n⏱ Duration: <b>{duration}</b>\n\n⏳ Your file has been added to the processing queue. Transcription will be performed as soon as the queue allows.\n\n<i>Processing time depends on file duration and current server load. We will send you a message when everything is ready.</i>",
   "transcribeProcessingStart": "🔄 <b>Transcription started!</b>\n\n🎵 Name: <b>{fileName}</b>\n⏱ Duration: <b>{duration}</b>\n\nProgress: <b>0%</b>",
   "transcribeProgress": "🔄 <b>Transcription in progress...</b>\n\n🎵 Name: <b>{fileName}</b>\n⏱ Duration: <b>{duration}</b>\n\nProgress: <b>{progress}%</b>",
+  "transcribeCompleted": "✅ <b>Transcription completed!</b>\n\n🎵 Name: <b>{fileName}</b>\n⏱ Duration: <b>{duration}</b>\n🗣 Language: <b>{languageCode}</b>",
   "unsupportedFormat": "This audio format is not supported yet.",
-  "transcribeResult": "Language: {languageCode}\nResult:\n\n<pre>{previewText}</pre>",
+  "transcribeResult": "{previewText}",
   "buttonTranscribeResult": "Download result file",
   "transcribeDownload": "File with transcription result"
 }

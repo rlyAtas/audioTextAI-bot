@@ -7,8 +7,9 @@
   "transcribeFileReceived": "📁 ¡Archivo recibido!\n\n🎵 Nombre: <b>{fileName}</b>\n⏱ Duración: <b>{duration}</b>\n\n⏳ Tu archivo ha sido añadido a la cola de procesamiento. La transcripción se realizará tan pronto como lo permita la cola.\n\n<i>El tiempo de procesamiento depende de la duración del archivo y la carga actual del servidor. Te enviaremos un mensaje cuando todo esté listo.</i>",
   "transcribeProcessingStart": "🔄 <b>¡Transcripción iniciada!</b>\n\n🎵 Nombre: <b>{fileName}</b>\n⏱ Duración: <b>{duration}</b>\n\nProgreso: <b>0%</b>",
   "transcribeProgress": "🔄 <b>Transcripción en progreso...</b>\n\n🎵 Nombre: <b>{fileName}</b>\n⏱ Duración: <b>{duration}</b>\n\nProgreso: <b>{progress}%</b>",
+  "transcribeCompleted": "✅ <b>¡Transcripción completada!</b>\n\n🎵 Nombre: <b>{fileName}</b>\n⏱ Duración: <b>{duration}</b>\n🗣 Idioma: <b>{languageCode}</b>",
   "unsupportedFormat": "Este formato de audio aún no es compatible.",
-  "transcribeResult": "Idioma: {languageCode}\nResultado:\n\n<pre>{previewText}</pre>",
+  "transcribeResult": "{previewText}",
   "buttonTranscribeResult": "Descargar archivo con el resultado",
   "transcribeDownload": "Archivo con el resultado de la transcripción"
 }

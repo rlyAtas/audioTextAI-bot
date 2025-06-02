@@ -16,7 +16,6 @@ const transcriptionLimit = pLimit(2);
 interface TranscriptionResult {
   file: string;
   previewText: string;
-  languageCode: string | undefined;
 }
 
 interface TranscriptionMetrics {
@@ -76,17 +75,13 @@ export async function transcribeAudio(
     metrics.fileSize = audioBuffer.length;
     await fs.writeFile(basePath, audioBuffer);
 
-    // Уведомляем пользователя о начале обработки
     await chat.transcribeProcessingStart(messageId, fileName, duration);
-    // const messageId = processingMessage?.message_id;
-
-    // конвертируем аудио в WAV формат для whisper.cpp
-    await convertAudioToWav(basePath, wavPath);
 
     // транскрибация
-    await transcriptionLimit(() =>
-      transcribeWithWhisperCpp(basePath, wavPath, model, chat, messageId, fileName, duration),
-    );
+    await transcriptionLimit(async () => {
+      await convertAudioToWav(basePath, wavPath);
+      await transcribeWithWhisperCpp(basePath, wavPath, model, chat, messageId, fileName, duration);
+    });
 
     const [jsonString, fullText] = await Promise.all([
       fs.readFile(jsonPath, 'utf-8'),
@@ -96,6 +91,11 @@ export async function transcribeAudio(
     // язык транскрипции
     const json = JSON.parse(jsonString);
     const languageCode = json?.result?.language ?? undefined;
+
+    // Уведомляем пользователя о завершении транскрипции
+    if (messageId) {
+      await chat.transcribeCompleted(messageId, fileName, duration, languageCode || 'undefined');
+    }
 
     metrics.endTime = Date.now();
     metrics.duration = metrics.endTime - metrics.startTime;
@@ -107,7 +107,6 @@ export async function transcribeAudio(
     return {
       file: metrics.fileName,
       previewText: fullText.length <= 2024 ? fullText : fullText.slice(0, 2024) + '...',
-      languageCode,
     };
   } catch (error: unknown) {
     metrics.endTime = Date.now();
@@ -272,7 +271,7 @@ async function transcribeWithWhisperCpp(
       threads,
       '--language',
       'auto',
-      '--output-json', // выводить JSON
+      '--output-json',
       '--output-txt',
       '--output-file',
       basePath, // указываем базовое имя для выходных файлов
@@ -291,10 +290,9 @@ async function transcribeWithWhisperCpp(
       stdout += data.toString();
     });
 
-    whisperProcess.stderr.on('data', (data) => {
+    whisperProcess.stderr.on('data', async (data) => {
       const output = data.toString();
       stderr += output;
-      // console.log(' ===== output =', output);
 
       // Обрабатываем прогресс из stderr (whisper.cpp выводит прогресс в stderr)
       if (chat && messageId) {
@@ -302,19 +300,12 @@ async function transcribeWithWhisperCpp(
 
         if (progressMatch) {
           const progress = parseInt(progressMatch[1]);
-          console.log(' ===== progress =', progress);
           const now = Date.now();
 
           // Обновляем прогресс максимум раз в 2 секунды, чтобы не спамить API
           if (now - lastProgressUpdate > 2000) {
             lastProgressUpdate = now;
-            chat
-              .transcribeProgressUpdate(messageId, progress, fileName, duration)
-              .catch((error) => {
-                logger.error(
-                  `[services/transcribeAudio/transcribeWithWhisperCpp] Failed to update progress: ${error}`,
-                );
-              });
+            await chat.transcribeProgressUpdate(messageId, fileName, duration, progress);
           }
         }
       }
