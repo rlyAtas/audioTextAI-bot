@@ -437,14 +437,50 @@ export class Chat {
         parse_mode: 'HTML',
       };
 
-      return this.bot.sendMessage(
+      const message = await this.bot.sendMessage(
         this.chatId,
         this.t('transcribeProcessingStart'),
         options,
       );
+
+      return message;
     } catch (error: unknown) {
       logger.error(
         `[classes/Chat/transcribeProcessingStart] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
+      );
+      return null;
+    }
+  }
+
+  /**
+   * Update the processing message with progress information.
+   * @param messageId - ID of the message to edit
+   * @param progress - progress percentage (0-100)
+   * @returns - edited message
+   */
+  async transcribeProgressUpdate(messageId: number, progress: number): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/transcribeProgressUpdate] chatId = ${this.chatId}, language = ${this.language}, messageId = ${messageId}, progress = ${progress}`,
+      );
+
+      const options: SendMessageOptions = {
+        parse_mode: 'HTML',
+      };
+
+      const result = await this.bot.editMessageText(
+        this.t('transcribeProgress', { progress: progress.toString() }),
+        {
+          chat_id: this.chatId,
+          message_id: messageId,
+          parse_mode: 'HTML',
+        },
+      );
+
+      return typeof result === 'boolean' ? null : result;
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/transcribeProgressUpdate] chatId = ${this.chatId}, language = ${this.language}, messageId = ${messageId}, progress = ${progress}, error = ${error}`,
       );
       return null;
     }
