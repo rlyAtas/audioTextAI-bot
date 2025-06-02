@@ -4,6 +4,7 @@ import { spawn } from 'node:child_process';
 import { CWD } from '../utils/projectRoot.js';
 import pLimit from 'p-limit';
 import { getLogger } from '../classes/Logger.js';
+import { Chat } from '../classes/Chat.js';
 import { PrismaClient } from '@prisma/client';
 import { WhisperModel } from '../types/whisper.js';
 import { requireEnv } from '../utils/requireEnv.js';
@@ -36,6 +37,7 @@ export async function transcribeAudio(
   model: WhisperModel,
   url: string,
   chatId: number,
+  chat: Chat,
   mimeType: string = 'unknown',
 ): Promise<TranscriptionResult | null> {
   const dir = path.join(CWD, 'texts', String(chatId));
@@ -71,6 +73,9 @@ export async function transcribeAudio(
     metrics.fileSize = audioBuffer.length;
     await fs.writeFile(basePath, audioBuffer);
 
+    // Уведомляем пользователя о начале обработки
+    await chat.transcribeProcessingStart();
+
     // конвертируем аудио в WAV формат для whisper.cpp
     await convertAudioToWav(basePath, wavPath);
 
@@ -84,7 +89,6 @@ export async function transcribeAudio(
 
     // язык транскрипции
     const json = JSON.parse(jsonString);
-    console.log('====== json?.result = ', json?.result);
     const languageCode = json?.result?.language ?? undefined;
 
     metrics.endTime = Date.now();
@@ -122,11 +126,11 @@ export async function transcribeAudio(
           `[services/transcribeAudio] Failed to delete WAV file: ${wavPath}.json, error: ${error}`,
         );
       }),
-      // fs.unlink(jsonPath).catch((error: unknown) => {
-      //   logger.error(
-      //     `[services/transcribeAudio] Failed to delete JSON file: ${jsonPath}, error: ${error}`,
-      //   );
-      // }),
+      fs.unlink(jsonPath).catch((error: unknown) => {
+        logger.error(
+          `[services/transcribeAudio] Failed to delete JSON file: ${jsonPath}, error: ${error}`,
+        );
+      }),
     ]);
   }
 }
