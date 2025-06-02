@@ -1,11 +1,12 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { nodewhisper } from 'nodejs-whisper';
+import { spawn } from 'node:child_process';
 import { CWD } from '../utils/projectRoot.js';
 import pLimit from 'p-limit';
 import { getLogger } from '../classes/Logger.js';
 import { PrismaClient } from '@prisma/client';
-import { defaultWhisperModel, WhisperModel } from '../types/whisper.js';
+import { WhisperModel } from '../types/whisper.js';
+import { requireEnv } from '../utils/requireEnv.js';
 
 const logger = getLogger();
 const prisma = new PrismaClient();
@@ -40,6 +41,9 @@ export async function transcribeAudio(
   const dir = path.join(CWD, 'texts', String(chatId));
   const timestamp = getFormattedTimestamp();
   const basePath = path.join(dir, timestamp);
+  const wavPath = `${basePath}.wav`;
+  const jsonPath = `${basePath}.json`;
+  const txtPath = `${basePath}.txt`;
 
   const metrics: TranscriptionMetrics = {
     chatId,
@@ -67,23 +71,15 @@ export async function transcribeAudio(
     metrics.fileSize = audioBuffer.length;
     await fs.writeFile(basePath, audioBuffer);
 
-    // транскрибация
-    await transcriptionLimit(() =>
-      nodewhisper(basePath, {
-        modelName: model,
-        removeWavFileAfterTranscription: true,
-        whisperOptions: {
-          outputInText: true,
-          outputInJsonFull: true,
-        },
-      }),
-    );
+    // конвертируем аудио в WAV формат для whisper.cpp
+    await convertAudioToWav(basePath, wavPath);
 
-    // переименуем .txt и читаем результат
-    await fs.rename(`${basePath}.wav.txt`, `${basePath}.txt`);
+    // транскрибация
+    await transcriptionLimit(() => transcribeWithWhisperCpp(basePath, wavPath, model));
+
     const [jsonString, fullText] = await Promise.all([
-      fs.readFile(`${basePath}.wav.json`, 'utf-8'),
-      fs.readFile(`${basePath}.txt`, 'utf-8'),
+      fs.readFile(jsonPath, 'utf-8'),
+      fs.readFile(txtPath, 'utf-8'),
     ]);
 
     // язык транскрипции
@@ -115,14 +111,19 @@ export async function transcribeAudio(
     return null;
   } finally {
     await Promise.allSettled([
-      fs.unlink(`${basePath}.wav.json`).catch((error: unknown) => {
-        logger.error(
-          `[services/transcribeAudio] Failed to delete JSON file: ${basePath}.wav.json, error: ${error}`,
-        );
-      }),
       fs.unlink(basePath).catch((error: unknown) => {
         logger.error(
           `[services/transcribeAudio] Failed to delete original file: ${basePath}, error: ${error}`,
+        );
+      }),
+      fs.unlink(wavPath).catch((error: unknown) => {
+        logger.error(
+          `[services/transcribeAudio] Failed to delete WAV file: ${wavPath}.json, error: ${error}`,
+        );
+      }),
+      fs.unlink(jsonPath).catch((error: unknown) => {
+        logger.error(
+          `[services/transcribeAudio] Failed to delete JSON file: ${jsonPath}, error: ${error}`,
         );
       }),
     ]);
@@ -142,17 +143,8 @@ const getFormattedTimestamp = (): string => {
   ].join('-');
 };
 
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B';
-  const k = 1024;
-  const sizes = ['B', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}
-
-async function logTranscriptionMetrics(metrics: TranscriptionMetrics): Promise<void> {
+const logTranscriptionMetrics = async (metrics: TranscriptionMetrics): Promise<void> => {
   const status = metrics.success ? true : false;
-  // время обработки в секундах
   const duration = Math.round(metrics.duration / 1000);
 
   await prisma.transcriptionLog.create({
@@ -167,5 +159,136 @@ async function logTranscriptionMetrics(metrics: TranscriptionMetrics): Promise<v
       success: status,
       detectedLang: metrics.languageCode,
     },
+  });
+};
+
+/**
+ * Функция конвертации аудио в формат WAV 16-bit для whisper.cpp
+ * @param inputPath - путь к исходному аудиофайлу
+ * @param outputPath - путь к выходному WAV файлу
+ */
+async function convertAudioToWav(inputPath: string, outputPath: string): Promise<void> {
+  logger.debug(
+    `[services/transcribeAudio/convertAudioToWav] inputPath = ${inputPath}, outputPath = ${outputPath}`,
+  );
+
+  return new Promise((resolve, reject) => {
+    const args = [
+      '-i',
+      inputPath,
+      '-ar',
+      '16000', // частота дискретизации 16kHz
+      '-ac',
+      '1', // моно (1 канал)
+      '-c:a',
+      'pcm_s16le', // кодек: 16-bit PCM little-endian
+      '-y', // перезаписать выходной файл без запроса
+      outputPath, // выходной файл
+    ];
+
+    const ffmpegProcess = spawn('ffmpeg', args, {
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    ffmpegProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    ffmpegProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    ffmpegProcess.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        logger.error(
+          `[services/transcribeAudio/convertAudioToWav] FFmpeg process failed with code ${code}`,
+        );
+        logger.error(`[services/transcribeAudio/convertAudioToWav] stderr: ${stderr}`);
+        reject(new Error(`FFmpeg process failed with code ${code}: ${stderr}`));
+      }
+    });
+
+    ffmpegProcess.on('error', (error) => {
+      logger.error(
+        `[services/transcribeAudio/convertAudioToWav] Failed to start ffmpeg process: ${error}`,
+      );
+      reject(error);
+    });
+  });
+}
+
+/**
+ * Функция транскрипции аудио с помощью whisper.cpp
+ * @param basePath - базовый путь для выходных файлов
+ * @param audioPath - путь к аудиофайлу
+ * @param model - модель whisper для использования
+ */
+async function transcribeWithWhisperCpp(
+  basePath: string,
+  audioPath: string,
+  model: WhisperModel,
+): Promise<void> {
+  logger.debug(
+    `[services/transcribeAudio/transcribeWithWhisperCpp] basePath = ${basePath}, audioPath = ${audioPath}, model = ${model}`,
+  );
+
+  const whisperPath = requireEnv('WHISPER_PATH');
+  const threads = requireEnv('WHISPER_THREADS');
+
+  return new Promise((resolve, reject) => {
+    const whisperBinary = path.join(whisperPath, 'build', 'bin', 'whisper-cli');
+    const modelFile = path.join(whisperPath, 'models', `ggml-${model}.bin`);
+
+    const args = [
+      '-m',
+      modelFile,
+      '-f',
+      audioPath,
+      '-t',
+      threads,
+      '--output-json', // выводить JSON
+      '--output-txt',
+      '--output-file',
+      basePath, // указываем базовое имя для выходных файлов
+    ];
+
+    const whisperProcess = spawn(whisperBinary, args, {
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    whisperProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    whisperProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    whisperProcess.on('close', (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        logger.error(
+          `[services/transcribeAudio/transcribeWithWhisperCpp] Whisper process failed with code ${code}`,
+        );
+        logger.error(`[services/transcribeAudio/transcribeWithWhisperCpp] stderr: ${stderr}`);
+        reject(new Error(`Whisper process failed with code ${code}: ${stderr}`));
+      }
+    });
+
+    whisperProcess.on('error', (error) => {
+      logger.error(
+        `[services/transcribeAudio/transcribeWithWhisperCpp] Failed to start whisper process: ${error}`,
+      );
+      reject(error);
+    });
   });
 }
