@@ -11,7 +11,7 @@ import { requireEnv } from '../utils/requireEnv.js';
 
 const logger = getLogger();
 const prisma = new PrismaClient();
-const transcriptionLimit = pLimit(2);
+const transcriptionLimit = pLimit(1);
 
 interface TranscriptionResult {
   file: string;
