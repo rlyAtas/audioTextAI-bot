@@ -186,6 +186,27 @@ export class Chat {
   }
 
   /**
+   * Send help message with bot information and usage instructions
+   * @returns - message
+   */
+  async sendHelp(): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/sendHelp] chatId = ${this.chatId}, language = ${this.language}`,
+      );
+      const options: SendMessageOptions = {
+        parse_mode: 'HTML',
+      };
+      return await this.bot.sendMessage(this.chatId, this.t('help'), options);
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/sendHelp] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
+      );
+      return null;
+    }
+  }
+
+  /**
    * The message sends the user the result of the transcription
    * @param file - path to the file
    * @param previewText - text preview

@@ -11,5 +11,6 @@
   "unsupportedFormat": "Este formato de audio aún no es compatible.",
   "transcribeResult": "{previewText}",
   "buttonTranscribeResult": "Descargar archivo con el resultado",
-  "transcribeDownload": "Archivo con el resultado de la transcripción"
+  "transcribeDownload": "Archivo con el resultado de la transcripción",
+  "help": "🤖 <b>AudioText AI Bot</b>\n\nConvierto mensajes de audio y voz en texto usando tecnología Whisper AI.\n\n📎 <b>Formatos soportados:</b>\nMP3, WAV, OGG, M4A, AAC, FLAC\n\n⚡ <b>Cómo usar:</b>\n¡Solo envíame un archivo de audio o mensaje de voz!\n\n🌍 <b>Comandos:</b>\n/start - comenzar\n/help - esta ayuda\n\n📞 <b>Soporte:</b> @rlyAtas"
 }

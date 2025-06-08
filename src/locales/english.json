@@ -11,5 +11,6 @@
   "unsupportedFormat": "This audio format is not supported yet.",
   "transcribeResult": "{previewText}",
   "buttonTranscribeResult": "Download result file",
-  "transcribeDownload": "File with transcription result"
+  "transcribeDownload": "File with transcription result",
+  "help": "🤖 <b>AudioText AI Bot</b>\n\nI convert audio and voice messages to text using Whisper AI technology.\n\n📎 <b>Supported formats:</b>\nMP3, WAV, OGG, M4A, AAC, FLAC\n\n⚡ <b>How to use:</b>\nJust send me an audio file or voice message!\n\n🌍 <b>Commands:</b>\n/start - start working\n/help - this help\n\n📞 <b>Support:</b> @rlyAtas"
 }
