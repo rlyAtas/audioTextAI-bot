@@ -1,4 +1,6 @@
 {
+  "hi": "👋",
+  "languageSet": "Langue de l'interface changée en français.",
   "transcribeStart": "Veuillez patienter pendant que nous traitons votre fichier audio. Cela prendra quelques minutes !",
   "transcribeFileReceived": "📁 Fichier reçu !\n\n🎵 Nom : <b>{fileName}</b>\n⏱ Durée : <b>{duration}</b>\n\n⏳ Votre fichier a été ajouté à la file d'attente de traitement. La transcription sera effectuée dès que la file le permettra.\n\n<i>Le temps de traitement dépend de la durée du fichier et de la charge actuelle du serveur. Nous vous enverrons un message quand tout sera prêt.</i>",
   "transcribeProcessingStart": "🔄 <b>Transcription commencée !</b>\n\n🎵 Nom : <b>{fileName}</b>\n⏱ Durée : <b>{duration}</b>\n\nProgrès : <b>0%</b>",
@@ -6,7 +8,8 @@
   "transcribeCompleted": "✅ <b>Transcription terminée !</b>\n\n🎵 Nom : <b>{fileName}</b>\n⏱ Durée : <b>{duration}</b>\n🗣 Langue : <b>{languageCode}</b>",
   "languagesList": "🌍\nChoisissez la langue de l’interface.\n<i>Il ne s’agit pas de la langue audio – elle est détectée automatiquement.</i>",
   "technicalIssue": "⚠️\nNous avons des difficultés techniques temporaires.\nNous travaillons déjà à les résoudre.",
-  "startLanguageSet": "Bienvenue !\n\nJe suis un bot qui convertit les messages vocaux et les fichiers audio en texte.\n\nEnvoie simplement un <b>message vocal</b> ou un <b>fichier audio</b> — je vais le transcrire et t’envoyer le texte.",
+  "startLanguageSet": "Bienvenue !\n\nJe suis un bot qui convertit les messages vocaux et les fichiers audio en texte.\n\nEnvoie simplement un <b>message vocal</b> ou un <b>fichier audio</b> — je vais le transcrire et t'envoyer le texte.",
+  "help": "🤖 <b>AudioText AI Bot</b>\n\nJe convertis les messages audio et vocaux en texte en utilisant la technologie Whisper AI.\n\n📎 <b>Formats supportés:</b>\nMP3, WAV, OGG, M4A, AAC, FLAC\n\n⚡ <b>Comment utiliser:</b>\nEnvoyez-moi simplement un fichier audio ou un message vocal!\n\n🌍 <b>Commandes:</b>\n/start - commencer\n/help - cette aide\n/language - changer la langue de l'interface\n\n📞 <b>Support:</b> @rlyAtas",
   "unsupportedFormat": "Ce format audio n’est pas encore pris en charge.",
   "transcribeResult": "{previewText}",
   "buttonTranscribeResult": "Télécharger le fichier de résultat",

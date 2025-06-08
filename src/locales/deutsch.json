@@ -3,6 +3,7 @@
   "languagesList": "🌍\nWählen Sie die Sprache der Benutzeroberfläche.\n<i>Das ist nicht die Audiosprache - sie wird automatisch erkannt.</i>",
   "technicalIssue": "⚠️\nWir haben temporäre technische Schwierigkeiten.\nWir arbeiten bereits daran, sie zu beheben.",
   "startLanguageSet": "Willkommen!\n\nIch bin ein Bot, der Audio- und Sprachnachrichten in Text umwandelt.\n\nSende einfach eine <b>Sprachnachricht</b> oder eine <b>Audiodatei</b> – ich transkribiere sie und sende dir den Text.",
+  "languageSet": "Benutzeroberfläche-Sprache auf Deutsch geändert.",
   "transcribeStart": "Bitte warten Sie, während wir Ihre Audiodatei verarbeiten. Das dauert ein paar Minuten!",
   "transcribeFileReceived": "📁 Datei erhalten!\n\n🎵 Name: <b>{fileName}</b>\n⏱ Dauer: <b>{duration}</b>\n\n⏳ Ihre Datei wurde zur Verarbeitungsqueue hinzugefügt. Die Transkription wird durchgeführt, sobald die Queue es zulässt.\n\n<i>Die Verarbeitungszeit hängt von der Dateigröße und der aktuellen Serverauslastung ab. Wir senden Ihnen eine Nachricht, wenn alles fertig ist.</i>",
   "transcribeProcessingStart": "🔄 <b>Transkription gestartet!</b>\n\n🎵 Name: <b>{fileName}</b>\n⏱ Dauer: <b>{duration}</b>\n\nFortschritt: <b>0%</b>",
@@ -11,5 +12,6 @@
   "unsupportedFormat": "Dieses Audioformat wird derzeit nicht unterstützt.",
   "transcribeResult": "{previewText}",
   "buttonTranscribeResult": "Ergebnisdatei herunterladen",
-  "transcribeDownload": "Datei mit Transkriptionsergebnis"
+  "transcribeDownload": "Datei mit Transkriptionsergebnis",
+  "help": "🤖 <b>AudioText AI Bot</b>\n\nIch wandle Audio- und Sprachnachrichten mit Whisper AI-Technologie in Text um.\n\n📎 <b>Unterstützte Formate:</b>\nMP3, WAV, OGG, M4A, AAC, FLAC\n\n⚡ <b>Verwendung:</b>\nSenden Sie mir einfach eine Audiodatei oder Sprachnachricht!\n\n🌍 <b>Befehle:</b>\n/start - beginnen\n/help - diese Hilfe\n/language - Oberflächensprache ändern\n\n📞 <b>Support:</b> @rlyAtas"
 }

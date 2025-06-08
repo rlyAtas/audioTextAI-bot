@@ -7,23 +7,21 @@ import { Language } from '../../../types/common.js';
 const logger = getLogger();
 const prisma = new PrismaClient();
 
-export async function help(bot: TelegramBot, msg: Message) {
+export async function language(bot: TelegramBot, msg: Message) {
   let language: Language = 'english';
 
   try {
-    logger.debug(`[bot/handlers/text/help] message = ${JSON.stringify(msg)}`);
+    logger.debug(`[bot/handlers/text/language] message = ${JSON.stringify(msg)}`);
 
-    // Получаем язык пользователя из базы данных
     const telegramId = BigInt(msg.from!.id);
     const user = await prisma.user.findUnique({ where: { telegramId } });
     language = (user?.language as Language) || 'english';
 
     const chat = await Chat.create(bot, msg.chat.id, language);
 
-    // Отправляем справку на нужном языке
-    await chat.sendHelp();
+    await chat.languagesList(false);
   } catch (error: unknown) {
-    logger.error(`[bot/handlers/text/help] message = ${JSON.stringify(msg)}, error = ${error}`);
+    logger.error(`[bot/handlers/text/language] message = ${JSON.stringify(msg)}, error = ${error}`);
     const chat = await Chat.create(bot, msg.chat.id, language);
     await chat.technicalIssue();
   }
