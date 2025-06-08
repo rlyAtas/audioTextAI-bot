@@ -16,16 +16,14 @@ export async function help(bot: TelegramBot, msg: Message) {
     // Получаем язык пользователя из базы данных
     const telegramId = BigInt(msg.from!.id);
     const user = await prisma.user.findUnique({ where: { telegramId } });
-    language = user?.language as Language || 'english';
+    language = (user?.language as Language) || 'english';
 
     const chat = await Chat.create(bot, msg.chat.id, language);
-    
+
     // Отправляем справку на нужном языке
     await chat.sendHelp();
   } catch (error: unknown) {
-    logger.error(
-      `[bot/handlers/text/help] message = ${JSON.stringify(msg)}, error = ${error}`,
-    );
+    logger.error(`[bot/handlers/text/help] message = ${JSON.stringify(msg)}, error = ${error}`);
     const chat = await Chat.create(bot, msg.chat.id, language);
     await chat.technicalIssue();
   }

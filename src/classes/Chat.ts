@@ -191,9 +191,7 @@ export class Chat {
    */
   async sendHelp(): Promise<Message | null> {
     try {
-      logger.debug(
-        `[classes/Chat/sendHelp] chatId = ${this.chatId}, language = ${this.language}`,
-      );
+      logger.debug(`[classes/Chat/sendHelp] chatId = ${this.chatId}, language = ${this.language}`);
       const options: SendMessageOptions = {
         parse_mode: 'HTML',
       };
