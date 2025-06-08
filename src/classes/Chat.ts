@@ -165,6 +165,27 @@ export class Chat {
   }
 
   /**
+   * Message that the user language is set
+   * @returns - message
+   */
+  async languageSet(): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/languageSet] chatId = ${this.chatId}, language = ${this.language}`,
+      );
+      const options: SendMessageOptions = {
+        parse_mode: 'HTML',
+      };
+      return await this.bot.sendMessage(this.chatId, this.t('languageSet'), options);
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/languageSet] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
+      );
+      return null;
+    }
+  }
+
+  /**
    * Message that the audio format is not yet supported
    * @returns - message
    */
