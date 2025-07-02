@@ -10,6 +10,7 @@
   "transcribeProgress": "🔄 <b>Transcription in progress...</b>\n\n🎵 Name: <b>{fileName}</b>\n⏱ Duration: <b>{duration}</b>\n\nProgress: <b>{progress}%</b>",
   "transcribeCompleted": "✅ <b>Transcription completed!</b>\n\n🎵 Name: <b>{fileName}</b>\n⏱ Duration: <b>{duration}</b>\n🗣 Language: <b>{languageCode}</b>",
   "unsupportedFormat": "This audio format is not supported yet.",
+  "fileTooLarge": "📁 <b>File too large!</b>\n\n📊 Your file size: <b>{fileSize} MB</b>\n⚠️ Maximum size: <b>{maxSize} MB</b>\n\n💡 <b>What to do?</b>\n• Split the file into parts under {maxSize} MB\n• Use audio editor (e.g., Audacity)\n• Compress file with lower bitrate\n\n🛠 <b>Recommended tools:</b>\n📱 Mobile: GarageBand (iOS), WaveEditor (Android)\n💻 Desktop: Audacity (free)\n🌐 Online: mp3cut.net, audiotrimmer.com",
   "transcribeResult": "{previewText}",
   "buttonTranscribeResult": "Download result file",
   "transcribeDownload": "File with transcription result",

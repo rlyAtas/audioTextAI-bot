@@ -49,6 +49,13 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
     const fileName = getFileName(message);
     const duration = getDuration(message);
 
+    // Проверяем размер файла (лимит Telegram Bot API: 20 МБ)
+    const maxFileSize = 20 * 1024 * 1024; // 20 МБ в байтах
+    if (audio.file_size && audio.file_size > maxFileSize) {
+      await chat.fileTooLarge(audio.file_size, maxFileSize);
+      return;
+    }
+
     const tgMessage = await chat.transcribeFileReceived(fileName, duration);
     if (tgMessage === null) throw new Error('Failed to send transcribe file received message');
 

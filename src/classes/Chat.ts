@@ -557,4 +557,36 @@ export class Chat {
       return null;
     }
   }
+
+  /**
+   * Send message when file size exceeds Telegram Bot API limit
+   * @param fileSize - actual file size in bytes
+   * @param maxSize - maximum allowed size in bytes
+   * @returns - message
+   */
+  async fileTooLarge(fileSize: number, maxSize: number): Promise<Message | null> {
+    try {
+      logger.debug(
+        `[classes/Chat/fileTooLarge] chatId = ${this.chatId}, language = ${this.language}, fileSize = ${fileSize}, maxSize = ${maxSize}`,
+      );
+
+      const fileSizeMB = Math.round(fileSize / (1024 * 1024));
+      const maxSizeMB = Math.round(maxSize / (1024 * 1024));
+
+      const options: SendMessageOptions = {
+        parse_mode: 'HTML',
+      };
+
+      const message = this.t('fileTooLarge', {
+        fileSize: String(fileSizeMB),
+        maxSize: String(maxSizeMB),
+      });
+      return this.bot.sendMessage(this.chatId, message, options);
+    } catch (error: unknown) {
+      logger.error(
+        `[classes/Chat/fileTooLarge] chatId = ${this.chatId}, language = ${this.language}, error = ${error}`,
+      );
+      return null;
+    }
+  }
 }
