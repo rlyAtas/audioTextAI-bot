@@ -29,7 +29,7 @@ export async function start(bot: TelegramBot, message: Message) {
       await prisma.user.update({ where: { telegramId }, data: { language } });
 
       logger.info(
-        `[NEW USER] telegramId=${telegramId}, username=${newData.username || 'none'}, firstName=${newData.firstName}, language=${language}`,
+        `[new user] telegramId=${telegramId}, username=${newData.username || 'none'}, firstName=${newData.firstName}, language=${language}`,
       );
 
       await chat.languagesList(true);

@@ -67,7 +67,7 @@ export async function transcribeAudio(
     );
 
     logger.info(
-      `[NEW TRANSCRIPTION] chatId=${chatId}, model=${model}, fileName=${fileName}, mimeType=${mimeType}, duration=${duration}`,
+      `[new transcription] chatId=${chatId}, model=${model}, fileName=${fileName}, mimeType=${mimeType}, duration=${duration}`,
     );
 
     await fs.mkdir(dir, { recursive: true });
