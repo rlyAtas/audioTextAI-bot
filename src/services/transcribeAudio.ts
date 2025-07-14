@@ -65,6 +65,11 @@ export async function transcribeAudio(
     logger.debug(
       `[services/transcribeAudio] url = ${url}, chatId = ${chatId}, mimeType = ${mimeType}`,
     );
+
+    logger.info(
+      `[new transcription] chatId=${chatId}, model=${model}, fileName=${fileName}, mimeType=${mimeType}, duration=${duration}`,
+    );
+
     await fs.mkdir(dir, { recursive: true });
 
     // скачиваем и сохраняем файл

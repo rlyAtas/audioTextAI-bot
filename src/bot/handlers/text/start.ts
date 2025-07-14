@@ -27,6 +27,11 @@ export async function start(bot: TelegramBot, message: Message) {
     if (!existingUser) {
       await prisma.user.create({ data: { telegramId, ...newData } });
       await prisma.user.update({ where: { telegramId }, data: { language } });
+
+      logger.info(
+        `[new user] telegramId=${telegramId}, username=${newData.username || 'none'}, firstName=${newData.firstName}, language=${language}`,
+      );
+
       await chat.languagesList(true);
     }
 
