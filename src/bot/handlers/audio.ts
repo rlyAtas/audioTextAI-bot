@@ -25,6 +25,20 @@ export async function handlerAudio(bot: TelegramBot, message: Message) {
     // Получаем язык из базы данных
     const telegramId = BigInt(message.from!.id);
     const user = await prisma.user.findUnique({ where: { telegramId } });
+
+    // Проверяем, не является ли пользователь спаммером
+    if (user?.isSpammer) {
+      // const chat = await Chat.create(bot, chatId, language);
+      // TODO создать метод в классе Chat для отправки сообщения о спаме
+      // также избавиться от использования bot в командах бота blockUser и unblockUser
+      await bot.sendMessage(chatId, '🚫 Подозрение на спам. Свяжитесь с администратором.');
+
+      logger.info(
+        `[SPAM_BLOCKED] telegramId=${telegramId}, username=${user.username || 'none'}, firstName=${user.firstName}`,
+      );
+      return;
+    }
+
     language = user!.language as Language;
 
     const chat = await Chat.create(bot, chatId, language);
