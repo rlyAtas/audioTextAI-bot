@@ -17,6 +17,7 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   language     String   @default("english")
+  isSpammer    Boolean  @default(false)
 }
 
 model AppSetting {
